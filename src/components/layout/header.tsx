@@ -10,10 +10,11 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 
 const navigation = [
   { name: 'Startseite', href: '/' },
-  { name: 'Dienstleistungen', href: '/services' },
+  { name: 'Leistungen', href: '/leistungen' },
   { name: 'Team', href: '/team' },
-  { name: 'Preise', href: '/prices' },
-  { name: 'Kontakt', href: '/contact' },
+  { name: 'Über uns', href: '/ueber-uns' },
+  { name: 'Galerie', href: '/galerie' },
+  { name: 'Kontakt', href: '/kontakt' },
 ]
 
 interface HeaderProps {
@@ -46,18 +47,18 @@ export function Header({ className }: HeaderProps) {
       <div className="hidden md:block border-b bg-muted/50">
         <div className="container-wide flex h-10 items-center justify-between text-sm text-muted-foreground">
           <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2">
+            <a href="tel:+41712345678" className="flex items-center gap-2 hover:text-primary transition-colors">
               <Phone className="h-4 w-4" />
-              <span>+41 44 123 45 67</span>
-            </div>
+              <span>+41 71 234 56 78</span>
+            </a>
             <div className="flex items-center gap-2">
               <MapPin className="h-4 w-4" />
-              <span>Bahnhofstrasse 42, 8001 Zürich</span>
+              <span>Rorschacherstrasse 152, 9000 St. Gallen</span>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4" />
-            <span>Mo-Fr: 9:00-18:00, Sa: 9:00-16:00</span>
+            <span>Di-Fr: 9:00-18:00, Sa: 8:00-14:00</span>
           </div>
         </div>
       </div>
@@ -117,17 +118,17 @@ export function Header({ className }: HeaderProps) {
 
               {/* Mobile contact info */}
               <div className="pt-6 border-t space-y-4 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
+                <a href="tel:+41712345678" className="flex items-center gap-2">
                   <Phone className="h-4 w-4" />
-                  <span>+41 44 123 45 67</span>
-                </div>
+                  <span>+41 71 234 56 78</span>
+                </a>
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4" />
-                  <span>Bahnhofstrasse 42, 8001 Zürich</span>
+                  <span>Rorschacherstrasse 152, 9000 St. Gallen</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4" />
-                  <span>Mo-Fr: 9:00-18:00, Sa: 9:00-16:00</span>
+                  <span>Di-Fr: 9:00-18:00, Sa: 8:00-14:00</span>
                 </div>
               </div>
             </div>

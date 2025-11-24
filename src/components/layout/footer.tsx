@@ -6,21 +6,21 @@ import { Separator } from '@/components/ui/separator'
 
 const footerNavigation = {
   services: [
-    { name: 'Schnitt', href: '/services#schnitt' },
-    { name: 'Coloration', href: '/services#coloration' },
-    { name: 'Styling', href: '/services#styling' },
-    { name: 'Pflege', href: '/services#pflege' },
+    { name: 'Schnitt', href: '/leistungen#schnitt' },
+    { name: 'Coloration', href: '/leistungen#coloration' },
+    { name: 'Styling', href: '/leistungen#styling' },
+    { name: 'Pflege', href: '/leistungen#pflege' },
   ],
   company: [
-    { name: 'Über uns', href: '/about' },
+    { name: 'Über uns', href: '/ueber-uns' },
     { name: 'Team', href: '/team' },
-    { name: 'Karriere', href: '/careers' },
-    { name: 'Kontakt', href: '/contact' },
+    { name: 'Galerie', href: '/galerie' },
+    { name: 'Kontakt', href: '/kontakt' },
   ],
   legal: [
     { name: 'Impressum', href: '/impressum' },
-    { name: 'Datenschutz', href: '/privacy' },
-    { name: 'AGB', href: '/terms' },
+    { name: 'Datenschutz', href: '/datenschutz' },
+    { name: 'AGB', href: '/agb' },
   ],
 }
 
@@ -41,22 +41,22 @@ export function Footer({ className }: FooterProps) {
               <span className="text-2xl font-bold text-brand-400">SCHNITTWERK</span>
             </Link>
             <p className="text-salon-cream/70 text-sm">
-              Ihr Premium-Salon für Haarstyling und Pflege in Zürich.
+              Ihr Premium-Salon für Haarstyling und Pflege in St. Gallen.
               Erleben Sie erstklassige Dienstleistungen in entspannter Atmosphäre.
             </p>
             <div className="space-y-3 text-sm">
               <div className="flex items-center gap-3 text-salon-cream/70">
                 <MapPin className="h-4 w-4 text-brand-400" />
-                <span>Bahnhofstrasse 42, 8001 Zürich</span>
+                <span>Rorschacherstrasse 152, 9000 St. Gallen</span>
               </div>
-              <div className="flex items-center gap-3 text-salon-cream/70">
+              <a href="tel:+41712345678" className="flex items-center gap-3 text-salon-cream/70 hover:text-brand-400 transition-colors">
                 <Phone className="h-4 w-4 text-brand-400" />
-                <span>+41 44 123 45 67</span>
-              </div>
-              <div className="flex items-center gap-3 text-salon-cream/70">
+                <span>+41 71 234 56 78</span>
+              </a>
+              <a href="mailto:info@schnittwerk.ch" className="flex items-center gap-3 text-salon-cream/70 hover:text-brand-400 transition-colors">
                 <Mail className="h-4 w-4 text-brand-400" />
                 <span>info@schnittwerk.ch</span>
-              </div>
+              </a>
             </div>
           </div>
 
@@ -99,12 +99,16 @@ export function Footer({ className }: FooterProps) {
             <h3 className="font-semibold mb-6">Öffnungszeiten</h3>
             <div className="space-y-3 text-sm text-salon-cream/70">
               <div className="flex justify-between">
-                <span>Montag - Freitag</span>
+                <span>Montag</span>
+                <span>Geschlossen</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Dienstag - Freitag</span>
                 <span>09:00 - 18:00</span>
               </div>
               <div className="flex justify-between">
                 <span>Samstag</span>
-                <span>09:00 - 16:00</span>
+                <span>08:00 - 14:00</span>
               </div>
               <div className="flex justify-between">
                 <span>Sonntag</span>
