@@ -299,6 +299,29 @@ export interface AppointmentService {
 // DATABASE INTERFACE
 // ============================================
 
+export interface StaffServiceSkill {
+  id: string
+  staff_id: string
+  service_id: string
+  proficiency_level: number
+  created_at: string
+}
+
+export interface BlockedTime {
+  id: string
+  salon_id: string
+  staff_id: string | null
+  block_type: BlockedTimeType
+  reason: string | null
+  starts_at: string
+  ends_at: string
+  is_recurring: boolean
+  recurrence_pattern: string | null
+  created_by: string | null
+  created_at: string
+  updated_at: string
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -327,6 +350,16 @@ export interface Database {
         Insert: Omit<Staff, 'id' | 'created_at' | 'updated_at'>
         Update: Partial<Omit<Staff, 'id' | 'created_at' | 'updated_at'>>
       }
+      staff_working_hours: {
+        Row: StaffWorkingHours
+        Insert: Omit<StaffWorkingHours, 'id' | 'created_at'>
+        Update: Partial<Omit<StaffWorkingHours, 'id' | 'created_at'>>
+      }
+      staff_service_skills: {
+        Row: StaffServiceSkill
+        Insert: Omit<StaffServiceSkill, 'id' | 'created_at'>
+        Update: Partial<Omit<StaffServiceSkill, 'id' | 'created_at'>>
+      }
       services: {
         Row: Service
         Insert: Omit<Service, 'id' | 'created_at' | 'updated_at'>
@@ -337,15 +370,40 @@ export interface Database {
         Insert: Omit<ServiceCategory, 'id' | 'created_at' | 'updated_at'>
         Update: Partial<Omit<ServiceCategory, 'id' | 'created_at' | 'updated_at'>>
       }
+      service_prices: {
+        Row: ServicePrice
+        Insert: Omit<ServicePrice, 'id' | 'created_at'>
+        Update: Partial<Omit<ServicePrice, 'id' | 'created_at'>>
+      }
+      tax_rates: {
+        Row: TaxRate
+        Insert: Omit<TaxRate, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<TaxRate, 'id' | 'created_at' | 'updated_at'>>
+      }
       appointments: {
         Row: Appointment
         Insert: Omit<Appointment, 'id' | 'created_at' | 'updated_at'>
         Update: Partial<Omit<Appointment, 'id' | 'created_at' | 'updated_at'>>
       }
+      appointment_services: {
+        Row: AppointmentService
+        Insert: Omit<AppointmentService, 'id' | 'created_at'>
+        Update: Partial<Omit<AppointmentService, 'id' | 'created_at'>>
+      }
       booking_rules: {
         Row: BookingRules
         Insert: Omit<BookingRules, 'id' | 'created_at' | 'updated_at'>
         Update: Partial<Omit<BookingRules, 'id' | 'created_at' | 'updated_at'>>
+      }
+      opening_hours: {
+        Row: OpeningHours
+        Insert: Omit<OpeningHours, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<OpeningHours, 'id' | 'created_at' | 'updated_at'>>
+      }
+      blocked_times: {
+        Row: BlockedTime
+        Insert: Omit<BlockedTime, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<BlockedTime, 'id' | 'created_at' | 'updated_at'>>
       }
     }
     Enums: {
