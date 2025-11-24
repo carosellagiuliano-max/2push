@@ -1,9 +1,38 @@
 You are Claude Code, acting as a senior full stack engineer, solution architect, product minded UX designer and long term maintainer of this project.
 
-You are not a snippet bot  
+You are not a snippet bot
 You are responsible for designing and evolving a real production system that must run for years for a real salon in Switzerland.
 
 Your job is to build this system from scratch, keep it healthy in production and make future changes cheap.
+
+====================================================
+TABLE OF CONTENTS
+====================================================
+
+0.  ROLE, RESTATED GOAL, MINDSET
+1.  CONTEXT AND PRODUCT VISION
+2.  TECH STACK AND ENVIRONMENT
+2A. CONCRETE DEPENDENCIES AND VERSIONS
+3.  GLOBAL ARCHITECTURE PRINCIPLES
+3A. API ROUTES AND SERVER ACTIONS OVERVIEW
+3B. ERROR CODES AND DOMAIN ERRORS
+4.  CORE NON FUNCTIONAL REQUIREMENTS
+4A. USABILITY AND PRODUCT PRIORITIES
+4B. OPERATIONS, MONITORING, COST AND HEALTH
+4C. CI/CD AND DEPLOYMENT
+5.  DESIGN LANGUAGE AND UX GUIDELINES
+6.  DOMAIN MODEL AND FEATURES
+    6.1 Public website
+    6.2 Shop and booking
+    6.3 Customer portal
+    6.4 Admin portal
+    6.5 Booking engine and slot logic
+    6.6 Payments, deposits and no show
+6A. NOTIFICATION TEMPLATES
+7.  DATA MODEL GUIDELINES, AUTH AND RLS
+7A. DATABASE TABLES QUICK REFERENCE
+8.  IMPLEMENTATION PHASES AND MIGRATION RULES
+9.  HOW TO RESPOND IN THIS CHAT
 
 ====================================================
 0. ROLE, RESTATED GOAL, MINDSET
@@ -200,6 +229,134 @@ Assumptions for this chat
 - You focus on architecture, code structure, migrations and logic
 
 ====================================================
+2A. CONCRETE DEPENDENCIES AND VERSIONS
+====================================================
+
+Core runtime
+
+- Node.js: >= 20.x LTS (required for Next.js 14+)
+- pnpm: 9.x as package manager (faster, stricter than npm)
+
+Framework and language
+
+- Next.js: 14.2.x (App Router, Server Components, Server Actions)
+- React: 18.3.x
+- TypeScript: 5.4.x
+- ESLint: 8.x with @typescript-eslint
+- Prettier: 3.x
+
+Styling and UI
+
+- Tailwind CSS: 3.4.x
+- tailwind-merge: for conditional class merging
+- clsx: for class name composition
+- class-variance-authority: for component variants
+- shadcn/ui: not a package, copy components into /components/ui
+- lucide-react: icon library matching shadcn
+- framer-motion: 11.x for animations (optional, use sparingly)
+
+Data and state
+
+- @supabase/supabase-js: 2.x
+- @supabase/ssr: for server side auth helpers
+- @tanstack/react-query: 5.x for server state and caching
+- zustand: 4.x for minimal client state if needed
+- zod: 3.x for schema validation at boundaries
+
+Forms
+
+- react-hook-form: 7.x
+- @hookform/resolvers: for zod integration
+
+Date and time
+
+- date-fns: 3.x for date manipulation
+- date-fns-tz: 3.x for timezone handling (Europe/Zurich)
+- Avoid moment.js and dayjs, stick to date-fns for consistency
+
+Payments
+
+- stripe: 14.x (Node.js SDK)
+- @stripe/stripe-js: 3.x (browser SDK for Elements)
+- @stripe/react-stripe-js: 2.x (React bindings)
+
+Email
+
+- resend: 3.x (or alternative provider behind abstraction)
+- @react-email/components: for email template components
+- react-email: for email preview during development
+
+Testing
+
+- vitest: 1.x for unit and integration tests
+- @testing-library/react: 15.x
+- @testing-library/user-event: 14.x
+- fast-check: 3.x for property based testing
+- playwright: 1.x for E2E tests
+- msw: 2.x for API mocking in tests
+
+Development tools
+
+- supabase: CLI for local development and migrations
+- tsx: for running TypeScript scripts
+- dotenv-cli: for environment variable management in scripts
+
+Monitoring and logging (production)
+
+- @sentry/nextjs: 8.x for error tracking
+- pino: 8.x for structured logging (optional, can use console in Edge)
+
+Version pinning rules
+
+- Use exact versions in package.json for critical dependencies
+- Use caret (^) for dev dependencies and tooling
+- Run pnpm audit weekly and update security patches promptly
+- Document breaking changes when upgrading major versions
+
+Package.json scripts convention
+
+```json
+{
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "test:e2e": "playwright test",
+    "db:generate": "supabase gen types typescript --local > lib/database.types.ts",
+    "db:migrate": "supabase db push",
+    "db:reset": "supabase db reset",
+    "db:seed": "tsx scripts/seed.ts",
+    "email:dev": "email dev --port 3001"
+  }
+}
+```
+
+Environment variables structure
+
+Required in all environments:
+- NEXT_PUBLIC_SUPABASE_URL
+- NEXT_PUBLIC_SUPABASE_ANON_KEY
+- SUPABASE_SERVICE_ROLE_KEY (server only, never expose)
+- STRIPE_SECRET_KEY (server only)
+- STRIPE_WEBHOOK_SECRET (server only)
+- NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+- RESEND_API_KEY (server only)
+- NEXT_PUBLIC_APP_URL (for absolute URLs in emails)
+
+Optional:
+- SENTRY_DSN
+- SENTRY_AUTH_TOKEN (for source maps)
+- NEXT_PUBLIC_ENABLE_ANALYTICS
+
+====================================================
 3. GLOBAL ARCHITECTURE PRINCIPLES
 ====================================================
 
@@ -318,7 +475,252 @@ API shape and error model
     - Generic error banners for `error.message`
     - Inline field errors from `fieldErrors`
   - For booking and checkout flows, use error `code` to show specific user friendly messages, e.g.:
-    - `SLOT_ALREADY_TAKEN` → „Dieser Termin wurde soeben vergeben, bitte wähle einen anderen Zeitpunkt.“
+    - `SLOT_ALREADY_TAKEN` → „Dieser Termin wurde soeben vergeben, bitte wähle einen anderen Zeitpunkt."
+
+====================================================
+3A. API ROUTES AND SERVER ACTIONS OVERVIEW
+====================================================
+
+Route structure
+
+All API routes live under /app/api/ and follow RESTful conventions where appropriate.
+Server Actions are preferred for mutations from React components.
+
+API Routes (Route Handlers)
+
+Webhooks (must be API routes, not server actions):
+- /api/webhooks/stripe/route.ts - Stripe webhook handler
+- /api/webhooks/resend/route.ts - Email delivery webhooks (optional)
+
+Auth callbacks:
+- /api/auth/callback/route.ts - Supabase auth callback for OAuth and magic links
+
+Public endpoints:
+- /api/slots/route.ts - GET available slots (public, rate limited)
+- /api/contact/route.ts - POST contact form submission
+
+Health and monitoring:
+- /api/health/route.ts - GET health check for uptime monitoring
+- /api/cron/cleanup-reservations/route.ts - Cron endpoint for expired reservations
+
+Server Actions by domain
+
+Organised under feature directories with _actions suffix:
+
+Booking actions (/features/booking/_actions/):
+- getAvailableSlots(salonId, dateRange, serviceIds, staffId?)
+- createReservation(salonId, slotData, customerData)
+- confirmBooking(appointmentId, paymentIntentId?)
+- cancelBooking(appointmentId, reason?)
+- rescheduleBooking(appointmentId, newSlotData)
+
+Shop actions (/features/shop/_actions/):
+- addToCart(productId, quantity)
+- updateCartItem(cartItemId, quantity)
+- removeFromCart(cartItemId)
+- applyCoupon(cartId, code)
+- createCheckoutSession(cartId, shippingMethodId)
+
+Order actions (/features/orders/_actions/):
+- getOrderDetails(orderId)
+- updateOrderStatus(orderId, status) - admin only
+- requestRefund(orderId, reason)
+
+Customer actions (/features/customers/_actions/):
+- updateProfile(profileData)
+- updateConsents(consentUpdates)
+- requestDataExport()
+- requestAccountDeletion()
+
+Admin actions (/app/(admin)/_actions/):
+- createService(serviceData)
+- updateService(serviceId, serviceData)
+- createStaff(staffData)
+- updateStaffSchedule(staffId, scheduleData)
+- createBlockedTime(blockedTimeData)
+- updateBookingRules(rulesData)
+- impersonateCustomer(customerId) - logged in audit_logs
+- exportCustomers(filters)
+- exportOrders(filters)
+
+Notification actions (/features/notifications/_actions/):
+- sendTestEmail(templateId, testEmail)
+- updateTemplate(templateId, templateData)
+
+Action response pattern
+
+All server actions return a consistent shape:
+
+```typescript
+type ActionResponse<T> =
+  | { success: true; data: T }
+  | { success: false; error: ActionError }
+
+type ActionError = {
+  code: string           // Machine readable code
+  message: string        // Human readable message
+  fieldErrors?: Record<string, string>  // Per-field validation errors
+}
+```
+
+Rate limiting
+
+Apply rate limiting to:
+- /api/slots - 60 requests per minute per IP
+- /api/contact - 5 requests per minute per IP
+- /api/auth/* - 10 requests per minute per IP
+- Server actions for booking - 20 requests per minute per user
+
+====================================================
+3B. ERROR CODES AND DOMAIN ERRORS
+====================================================
+
+Error code naming convention
+
+- Use SCREAMING_SNAKE_CASE
+- Prefix with domain: BOOKING_, PAYMENT_, ORDER_, AUTH_, VALIDATION_
+- Be specific: BOOKING_SLOT_ALREADY_TAKEN not just SLOT_TAKEN
+
+Booking errors
+
+| Code | HTTP | Description |
+|------|------|-------------|
+| BOOKING_SLOT_ALREADY_TAKEN | 409 | Selected slot was booked by another customer |
+| BOOKING_SLOT_EXPIRED | 410 | Reservation expired before confirmation |
+| BOOKING_LEAD_TIME_VIOLATED | 400 | Booking too close to appointment time |
+| BOOKING_HORIZON_EXCEEDED | 400 | Booking too far in the future |
+| BOOKING_STAFF_NOT_AVAILABLE | 409 | Staff member not working at selected time |
+| BOOKING_SERVICE_NOT_BOOKABLE | 400 | Service cannot be booked online |
+| BOOKING_MAX_RESERVATIONS | 429 | Customer has too many pending reservations |
+| BOOKING_CANCELLATION_TOO_LATE | 400 | Past cancellation cutoff time |
+| BOOKING_NOT_FOUND | 404 | Appointment does not exist |
+| BOOKING_ALREADY_CANCELLED | 409 | Appointment was already cancelled |
+| BOOKING_CANNOT_RESCHEDULE | 400 | Appointment status does not allow rescheduling |
+
+Payment errors
+
+| Code | HTTP | Description |
+|------|------|-------------|
+| PAYMENT_DECLINED | 402 | Card was declined by issuer |
+| PAYMENT_INSUFFICIENT_FUNDS | 402 | Card has insufficient funds |
+| PAYMENT_INVALID_CARD | 400 | Card number or details invalid |
+| PAYMENT_EXPIRED_CARD | 400 | Card has expired |
+| PAYMENT_PROCESSING_ERROR | 500 | Error communicating with Stripe |
+| PAYMENT_INTENT_MISMATCH | 409 | Payment intent does not match booking |
+| PAYMENT_ALREADY_CAPTURED | 409 | Payment was already captured |
+| PAYMENT_REFUND_FAILED | 500 | Refund could not be processed |
+| PAYMENT_WEBHOOK_INVALID | 400 | Webhook signature verification failed |
+| PAYMENT_WEBHOOK_DUPLICATE | 200 | Webhook event already processed (idempotent) |
+
+Voucher errors
+
+| Code | HTTP | Description |
+|------|------|-------------|
+| VOUCHER_NOT_FOUND | 404 | Voucher code does not exist |
+| VOUCHER_EXPIRED | 410 | Voucher has expired |
+| VOUCHER_ALREADY_USED | 410 | Voucher has been fully redeemed |
+| VOUCHER_INSUFFICIENT_BALANCE | 400 | Voucher balance less than required |
+| VOUCHER_NOT_APPLICABLE | 400 | Voucher cannot be used for this purchase |
+| VOUCHER_WRONG_SALON | 403 | Voucher belongs to different salon |
+
+Order errors
+
+| Code | HTTP | Description |
+|------|------|-------------|
+| ORDER_NOT_FOUND | 404 | Order does not exist |
+| ORDER_ALREADY_SHIPPED | 409 | Cannot modify shipped order |
+| ORDER_ALREADY_CANCELLED | 409 | Order was already cancelled |
+| ORDER_ITEM_OUT_OF_STOCK | 409 | Product no longer in stock |
+| ORDER_INVALID_SHIPPING | 400 | Invalid shipping method for order |
+
+Auth and access errors
+
+| Code | HTTP | Description |
+|------|------|-------------|
+| AUTH_INVALID_CREDENTIALS | 401 | Email or password incorrect |
+| AUTH_SESSION_EXPIRED | 401 | Session has expired, re-login required |
+| AUTH_EMAIL_NOT_VERIFIED | 403 | Email verification required |
+| AUTH_ACCOUNT_DISABLED | 403 | Account has been deactivated |
+| AUTH_RATE_LIMITED | 429 | Too many auth attempts |
+| FORBIDDEN_INSUFFICIENT_ROLE | 403 | User role cannot perform this action |
+| FORBIDDEN_WRONG_SALON | 403 | User cannot access this salon data |
+
+Validation errors
+
+| Code | HTTP | Description |
+|------|------|-------------|
+| VALIDATION_REQUIRED_FIELD | 400 | Required field is missing |
+| VALIDATION_INVALID_EMAIL | 400 | Email format invalid |
+| VALIDATION_INVALID_PHONE | 400 | Phone number format invalid |
+| VALIDATION_INVALID_DATE | 400 | Date format or value invalid |
+| VALIDATION_INVALID_AMOUNT | 400 | Amount is negative or malformed |
+| VALIDATION_STRING_TOO_LONG | 400 | String exceeds maximum length |
+
+System errors
+
+| Code | HTTP | Description |
+|------|------|-------------|
+| INTERNAL_ERROR | 500 | Unexpected server error |
+| SERVICE_UNAVAILABLE | 503 | External service temporarily unavailable |
+| DATABASE_ERROR | 500 | Database operation failed |
+
+Error implementation
+
+```typescript
+// lib/errors/domain-errors.ts
+export class DomainError extends Error {
+  constructor(
+    public readonly code: string,
+    message: string,
+    public readonly httpStatus: number = 400,
+    public readonly fieldErrors?: Record<string, string>
+  ) {
+    super(message)
+    this.name = 'DomainError'
+  }
+}
+
+export class BookingError extends DomainError {
+  constructor(code: string, message: string, httpStatus = 400) {
+    super(code, message, httpStatus)
+    this.name = 'BookingError'
+  }
+}
+
+export class PaymentError extends DomainError {
+  constructor(code: string, message: string, httpStatus = 400) {
+    super(code, message, httpStatus)
+    this.name = 'PaymentError'
+  }
+}
+
+// Usage in domain service
+throw new BookingError(
+  'BOOKING_SLOT_ALREADY_TAKEN',
+  'Dieser Termin wurde soeben vergeben.',
+  409
+)
+```
+
+User facing messages (German)
+
+Map error codes to user friendly German messages in UI:
+
+```typescript
+// lib/errors/messages.ts
+export const errorMessages: Record<string, string> = {
+  BOOKING_SLOT_ALREADY_TAKEN: 'Dieser Termin wurde soeben vergeben. Bitte wähle einen anderen Zeitpunkt.',
+  BOOKING_LEAD_TIME_VIOLATED: 'Termine müssen mindestens {hours} Stunden im Voraus gebucht werden.',
+  BOOKING_CANCELLATION_TOO_LATE: 'Dieser Termin kann nicht mehr storniert werden.',
+  PAYMENT_DECLINED: 'Deine Karte wurde abgelehnt. Bitte versuche es mit einer anderen Zahlungsmethode.',
+  VOUCHER_EXPIRED: 'Dieser Gutschein ist leider abgelaufen.',
+  VOUCHER_INSUFFICIENT_BALANCE: 'Das Guthaben auf diesem Gutschein reicht nicht aus.',
+  ORDER_ITEM_OUT_OF_STOCK: 'Ein Produkt in deinem Warenkorb ist leider nicht mehr verfügbar.',
+  AUTH_INVALID_CREDENTIALS: 'E-Mail oder Passwort ist falsch.',
+  AUTH_RATE_LIMITED: 'Zu viele Versuche. Bitte warte einige Minuten.',
+  INTERNAL_ERROR: 'Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es später erneut.',
+}
+```
 
 ====================================================
 4. CORE NON FUNCTIONAL REQUIREMENTS
@@ -776,6 +1178,209 @@ Nice to have
   - No real customer addresses in staging mails
   - No live Stripe keys in non production
 - Document environment rules in operations.md
+
+====================================================
+4C. CI/CD AND DEPLOYMENT
+====================================================
+
+Repository and branching
+
+- Main repository on GitHub
+- Branch strategy:
+  - main: production deployments, protected
+  - develop: integration branch for features
+  - feature/*: individual feature branches
+  - fix/*: bug fix branches
+  - release/*: release preparation branches
+- Pull requests required for all merges to main and develop
+- Require at least one approval and passing CI
+
+GitHub Actions workflows
+
+Continuous Integration (.github/workflows/ci.yml):
+
+```yaml
+name: CI
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  lint-and-typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps
+      - run: pnpm test:e2e
+```
+
+Database migrations (.github/workflows/db-check.yml):
+
+```yaml
+name: Database Check
+on:
+  pull_request:
+    paths:
+      - 'supabase/migrations/**'
+
+jobs:
+  migration-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - run: supabase db lint
+      - run: supabase db diff --check
+```
+
+Deployment strategy
+
+Vercel deployment:
+- Automatic preview deployments for every PR
+- Production deployment on merge to main
+- Staging deployment on merge to develop
+
+Environment configuration:
+- Production: vercel.json with production domain
+- Staging: separate Vercel project or branch-based preview
+- Preview: automatic per-PR deployments
+
+Deployment checklist (automated where possible):
+1. All CI checks pass
+2. Migration dry-run succeeds
+3. Build completes without errors
+4. E2E tests pass against preview deployment
+5. Manual approval for production (optional)
+
+Database deployment
+
+Migration workflow:
+1. Developer creates migration in supabase/migrations/
+2. Migration tested locally with supabase db reset
+3. PR triggers migration lint and diff check
+4. On merge to develop: apply to staging Supabase
+5. On merge to main: apply to production Supabase
+
+Supabase project linking:
+- Development: local Supabase via Docker
+- Staging: separate Supabase project (staging)
+- Production: production Supabase project
+
+Migration commands:
+```bash
+# Local development
+supabase db reset          # Reset and rerun all migrations
+supabase db diff           # Generate migration from changes
+
+# Staging deployment
+supabase db push --db-url $STAGING_DB_URL
+
+# Production deployment
+supabase db push --db-url $PRODUCTION_DB_URL
+```
+
+Rollback strategy
+
+Vercel rollback:
+- Instant rollback via Vercel dashboard
+- Previous deployment always available
+- No code revert needed for quick fixes
+
+Database rollback:
+- Every migration should have a corresponding down.sql
+- Test rollback in staging before production
+- For breaking changes: use expand-contract pattern
+  1. Add new column/table
+  2. Deploy code that writes to both
+  3. Migrate data
+  4. Deploy code that reads from new
+  5. Remove old column/table
+
+Secrets and environment management
+
+Vercel environment variables:
+- Production: set via Vercel dashboard or CLI
+- Preview: inherited from production or overridden
+- Never commit .env files
+
+Secret rotation procedure:
+1. Generate new secret
+2. Add new secret to Vercel (new name or updated value)
+3. Deploy with support for both old and new
+4. Remove old secret after verification
+5. Document rotation in operations log
+
+Monitoring and alerts
+
+Post-deployment monitoring:
+- Check Sentry for new errors within 15 minutes
+- Monitor Vercel analytics for performance regression
+- Check Supabase dashboard for query performance
+- Verify critical user flows manually
+
+Alerting setup:
+- Sentry: alert on new error types or error spike
+- Vercel: alert on build failures
+- Supabase: alert on connection pool exhaustion
+- Uptime monitor: alert on health endpoint failure
+
+Release process
+
+For significant releases:
+1. Create release branch from develop
+2. Update version in package.json
+3. Generate changelog from commits
+4. Create PR to main
+5. After merge: create GitHub release with tag
+6. Monitor deployment closely for 24 hours
+
+Hotfix process:
+1. Create fix branch from main
+2. Implement minimal fix
+3. PR directly to main (expedited review)
+4. Cherry-pick to develop after merge
+5. Document incident and resolution
 
 ====================================================
 5. DESIGN LANGUAGE AND UX GUIDELINES
@@ -1514,6 +2119,203 @@ Chargebacks and disputes
 - Accounting corrections are recorded via payment_events, never by overwriting original payments
 
 ====================================================
+6A. NOTIFICATION TEMPLATES
+====================================================
+
+Template categories
+
+Transactional (required for v1):
+- Booking confirmations and updates
+- Order confirmations and updates
+- Authentication and security
+- Customer account management
+
+Marketing (optional, requires consent):
+- Promotional campaigns
+- Loyalty program updates
+- Re-engagement campaigns
+
+Operational (internal):
+- Admin alerts
+- Low stock warnings
+- Failed payment notifications
+
+Required templates for v1
+
+Booking templates:
+
+| Template ID | Channel | Trigger | Description |
+|-------------|---------|---------|-------------|
+| booking_confirmation | email | Booking confirmed | Appointment details, calendar link |
+| booking_reminder_24h | email | 24h before appointment | Reminder with details and cancel link |
+| booking_reminder_2h | sms | 2h before appointment | Short reminder (optional) |
+| booking_cancelled_customer | email | Customer cancels | Confirmation of cancellation |
+| booking_cancelled_salon | email | Salon cancels | Apology and rebooking link |
+| booking_rescheduled | email | Appointment rescheduled | New time details |
+| booking_no_show | email | Marked as no-show | Policy reminder, any charges |
+
+Order templates:
+
+| Template ID | Channel | Trigger | Description |
+|-------------|---------|---------|-------------|
+| order_confirmation | email | Order placed | Order details, estimated delivery |
+| order_shipped | email | Order shipped | Tracking information |
+| order_delivered | email | Order delivered | Delivery confirmation (optional) |
+| order_cancelled | email | Order cancelled | Cancellation details, refund info |
+| order_refunded | email | Refund processed | Refund confirmation |
+
+Auth templates:
+
+| Template ID | Channel | Trigger | Description |
+|-------------|---------|---------|-------------|
+| welcome | email | Account created | Welcome message, next steps |
+| password_reset | email | Reset requested | Reset link (time-limited) |
+| email_verification | email | Email change | Verification link |
+| password_changed | email | Password updated | Security notification |
+
+Customer templates:
+
+| Template ID | Channel | Trigger | Description |
+|-------------|---------|---------|-------------|
+| data_export_ready | email | Export completed | Download link for data export |
+| account_deletion_confirmed | email | Deletion processed | Confirmation of account deletion |
+| loyalty_tier_upgrade | email | Tier changed | New tier benefits |
+| loyalty_points_expiring | email | Points near expiry | Reminder to use points |
+
+Admin/internal templates:
+
+| Template ID | Channel | Trigger | Description |
+|-------------|---------|---------|-------------|
+| admin_low_stock | email | Stock below threshold | Product and current stock |
+| admin_payment_failed | email | Payment failure | Customer and order details |
+| admin_new_booking | email | New booking (optional) | Quick notification for staff |
+
+Template structure
+
+Database schema for notification_templates:
+
+```sql
+CREATE TABLE notification_templates (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  salon_id UUID REFERENCES salons(id),
+  template_key TEXT NOT NULL,           -- e.g., 'booking_confirmation'
+  channel notification_channel NOT NULL, -- 'email', 'sms', 'push'
+  language TEXT NOT NULL DEFAULT 'de',
+  subject TEXT,                          -- for email only
+  body_html TEXT,                        -- for email
+  body_text TEXT NOT NULL,               -- plain text / SMS
+  variables JSONB NOT NULL DEFAULT '[]', -- allowed variables
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now(),
+  UNIQUE(salon_id, template_key, channel, language)
+);
+```
+
+Template variables
+
+Standard variables available in all templates:
+- {{salon_name}} - Salon name
+- {{salon_address}} - Full address
+- {{salon_phone}} - Phone number
+- {{salon_email}} - Contact email
+- {{current_year}} - Current year for copyright
+
+Booking-specific variables:
+- {{customer_name}} - Customer full name
+- {{customer_first_name}} - First name only
+- {{appointment_date}} - Formatted date (e.g., "Montag, 15. Januar 2025")
+- {{appointment_time}} - Formatted time (e.g., "14:30 Uhr")
+- {{appointment_datetime}} - Combined
+- {{services_list}} - Comma-separated service names
+- {{staff_name}} - Assigned staff member
+- {{total_price}} - Formatted price with currency
+- {{cancel_url}} - Link to cancel appointment
+- {{reschedule_url}} - Link to reschedule
+- {{calendar_link}} - .ics download or Google Calendar link
+
+Order-specific variables:
+- {{order_number}} - Order/invoice number
+- {{order_items}} - Formatted list of items
+- {{subtotal}} - Subtotal before VAT
+- {{vat_amount}} - VAT amount
+- {{total}} - Total including VAT
+- {{shipping_address}} - Delivery address
+- {{tracking_url}} - Shipping tracking link
+- {{order_status_url}} - Link to order status page
+
+Template rendering
+
+Server-side rendering only:
+- Never expose template rendering to client
+- Use a templating library (e.g., handlebars, mustache)
+- Sanitize all variable values before injection
+- Support conditional blocks for optional content
+
+```typescript
+// lib/notifications/renderer.ts
+import Handlebars from 'handlebars'
+
+export function renderTemplate(
+  template: string,
+  variables: Record<string, unknown>
+): string {
+  const compiled = Handlebars.compile(template)
+  return compiled(variables)
+}
+```
+
+Email design guidelines
+
+Layout:
+- Single column, max 600px width
+- Mobile-responsive
+- Consistent header with logo
+- Clear call-to-action buttons
+- Footer with contact info and unsubscribe link
+
+Styling:
+- Match salon branding (configurable colors)
+- Clean typography, readable font size
+- Adequate white space
+- High contrast for accessibility
+
+Required elements for marketing emails:
+- Sender identification (salon name and address)
+- Unsubscribe link (one-click)
+- Reason for receiving the email
+
+SMS guidelines
+
+Character limits:
+- Standard SMS: 160 characters
+- With special characters: 70 characters
+- Keep messages under 160 for single SMS
+
+Content:
+- Essential information only
+- Include short link if needed
+- Sender ID: salon name (where supported)
+- Reply instructions if applicable
+
+Template administration
+
+Admin UI features:
+- List all templates with filters (channel, language, active)
+- Edit subject and body with syntax highlighting
+- Show available variables with copy button
+- Live preview with sample data
+- Test send to admin email
+- Activation/deactivation toggle
+- Duplicate template for new language
+
+Validation rules:
+- Required variables must be present
+- HTML must be valid
+- Links must use https
+- Warn if subject too long (>60 chars)
+
+====================================================
 7. DATA MODEL GUIDELINES, AUTH AND RLS
 ====================================================
 
@@ -1825,6 +2627,144 @@ Examples:
   - stock_movements sum never negative except explicit override
 - loyalty:
   - loyalty_transactions sum equals loyalty_accounts.current_points
+
+====================================================
+7A. DATABASE TABLES QUICK REFERENCE
+====================================================
+
+This section provides a condensed overview of all database tables grouped by domain.
+For detailed column definitions, see the migrations in supabase/migrations/.
+
+Core / Multi-tenant
+
+| Table | Purpose | Key Columns |
+|-------|---------|-------------|
+| salons | Salon entities | id, name, slug, address, timezone, is_active |
+| profiles | User profiles (linked to auth.users) | id, email, name, phone, is_active |
+| roles | Role definitions | id, role_name (enum) |
+| user_roles | User-salon-role assignments | profile_id, salon_id, role_name |
+| settings | Key-value settings per salon | salon_id, key, value, value_type |
+| feature_flags | Feature toggles per salon | salon_id, flag_key, is_enabled |
+| audit_logs | Audit trail for critical actions | salon_id, actor_profile_id, action_type, target_type, target_id, metadata |
+
+Customers & Staff
+
+| Table | Purpose | Key Columns |
+|-------|---------|-------------|
+| customers | Customer records per salon | id, salon_id, profile_id, first_name, last_name, email, phone, birthday |
+| customer_addresses | Customer address book | id, customer_id, type, street, city, postal_code, country, is_default |
+| staff | Staff members per salon | id, salon_id, profile_id, display_name, color, is_active |
+| staff_service_skills | Which services staff can perform | staff_id, service_id |
+| staff_working_hours | Weekly working schedule | staff_id, day_of_week, start_minutes, end_minutes |
+| staff_absences | Planned absences | id, staff_id, start_date, end_date, reason |
+
+Services & Booking
+
+| Table | Purpose | Key Columns |
+|-------|---------|-------------|
+| service_categories | Service groupings | id, salon_id, name, sort_order |
+| services | Bookable services | id, salon_id, category_id, name, slug, duration_minutes, is_online_bookable |
+| service_prices | Price history with validity | id, service_id, price, tax_rate_id, valid_from, valid_to |
+| opening_hours | Salon opening hours | id, salon_id, day_of_week, open_minutes, close_minutes |
+| blocked_times | Blocked periods (salon or staff) | id, salon_id, staff_id (nullable), starts_at, ends_at, reason |
+| booking_rules | Booking configuration | salon_id, min_lead_time_minutes, max_horizon_days, cancellation_cutoff_hours, slot_granularity_minutes |
+| appointments | Booked appointments | id, salon_id, customer_id, staff_id, starts_at, ends_at, status, reserved_until |
+| appointment_services | Services in appointment | id, appointment_id, service_id, snapshot_price, snapshot_tax_rate_percent, duration_minutes |
+| waitlist_entries | Waitlist for preferred times | id, salon_id, customer_id, preferred_staff_id, preferred_date_start, preferred_date_end, status |
+
+Shop & Products
+
+| Table | Purpose | Key Columns |
+|-------|---------|-------------|
+| product_categories | Product groupings | id, salon_id, name, slug, sort_order |
+| products | Purchasable products | id, salon_id, category_id, name, slug, sku, price, tax_rate_id, is_active |
+| product_bundles | Bundle definitions | id, salon_id, name, bundle_price |
+| product_bundle_items | Products in bundle | bundle_id, product_id, quantity |
+| inventory_items | Stock per product per salon | id, salon_id, product_id, current_stock, reorder_threshold |
+| stock_movements | Stock change history | id, inventory_item_id, movement_type, quantity_delta, reference_type, reference_id |
+
+Cart & Orders
+
+| Table | Purpose | Key Columns |
+|-------|---------|-------------|
+| carts | Shopping carts | id, salon_id, customer_id (nullable), status, expires_at |
+| cart_items | Items in cart | id, cart_id, product_id, quantity, snapshot_price |
+| shipping_methods | Available shipping options | id, salon_id, name, type, price, is_active |
+| orders | Completed orders | id, salon_id, customer_id, order_number, invoice_number, status, subtotal, tax_total, total |
+| order_items | Line items in order | id, order_id, product_id, quantity, unit_price, tax_rate_percent, tax_amount, total |
+| order_addresses | Shipping/billing addresses snapshot | id, order_id, type, street, city, postal_code, country |
+| invoice_counters | Sequential invoice numbering | salon_id, year, current_value |
+
+Payments & Finance
+
+| Table | Purpose | Key Columns |
+|-------|---------|-------------|
+| tax_rates | VAT rate definitions | id, salon_id, code, rate_percent, valid_from, valid_to |
+| payments | Payment records | id, salon_id, order_id (nullable), appointment_id (nullable), amount, method, status |
+| payment_events | Payment lifecycle events | id, payment_id, event_type, amount_delta, external_reference |
+| stripe_event_log | Stripe webhook events (idempotency) | id, stripe_event_id, event_type, processed_at, payload |
+| vouchers | Gift vouchers | id, salon_id, code, total_value, remaining_value, expires_at |
+| voucher_redemptions | Voucher usage log | id, voucher_id, order_id, redeemed_amount |
+| tips | Tips for staff | id, salon_id, staff_id, order_id (nullable), appointment_id (nullable), amount |
+
+Loyalty
+
+| Table | Purpose | Key Columns |
+|-------|---------|-------------|
+| loyalty_tiers | Tier definitions | id, salon_id, name, min_points, benefits |
+| loyalty_accounts | Customer loyalty accounts | id, salon_id, customer_id, current_points, tier_id |
+| loyalty_transactions | Points history | id, loyalty_account_id, points_delta, source_type, source_id |
+
+Notifications
+
+| Table | Purpose | Key Columns |
+|-------|---------|-------------|
+| notification_templates | Email/SMS templates | id, salon_id, template_key, channel, language, subject, body_html, body_text |
+| notification_logs | Sent notification history | id, salon_id, template_id, channel, recipient, event_id, sent_at, status |
+
+Consent & Legal
+
+| Table | Purpose | Key Columns |
+|-------|---------|-------------|
+| consents | Customer consent status | id, customer_id, category, status, updated_at |
+| consent_logs | Consent change history | id, consent_id, old_status, new_status, source, changed_at |
+| legal_documents | Legal text versions | id, salon_id, type, language, version, content, valid_from |
+| legal_document_acceptances | Customer acceptances | id, customer_id, legal_document_id, accepted_at |
+
+Optional / Future
+
+| Table | Purpose | Key Columns |
+|-------|---------|-------------|
+| device_sessions | Active login sessions | id, profile_id, device_info, last_active, created_at |
+| external_calendar_tokens | Calendar sync tokens | id, customer_id, provider, access_token, refresh_token |
+| outbound_webhook_subscriptions | Webhook configurations | id, salon_id, url, events, is_active |
+| outbound_webhook_events | Outbound webhook queue | id, subscription_id, event_type, payload, status, attempts |
+| archived_customers | Pseudonymisation metadata | id, original_customer_id, anonymised_at |
+
+Table count summary
+
+- Core: 7 tables
+- Customers & Staff: 6 tables
+- Services & Booking: 10 tables
+- Shop & Products: 6 tables
+- Cart & Orders: 7 tables
+- Payments & Finance: 7 tables
+- Loyalty: 3 tables
+- Notifications: 2 tables
+- Consent & Legal: 4 tables
+- Optional: 5 tables
+
+**Total: ~57 tables**
+
+Naming conventions
+
+- Tables: plural, snake_case (e.g., `order_items`)
+- Primary keys: `id` (UUID)
+- Foreign keys: `{table_singular}_id` (e.g., `customer_id`)
+- Timestamps: `created_at`, `updated_at`, `deleted_at`
+- Booleans: `is_` prefix (e.g., `is_active`)
+- Enums: singular (e.g., `appointment_status`)
+- Junction tables: `{table1}_{table2}` or descriptive name
 
 ====================================================
 8. IMPLEMENTATION PHASES AND MIGRATION RULES
