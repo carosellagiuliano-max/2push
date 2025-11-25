@@ -11,3 +11,13 @@ export {
   type CustomerConsent,
   type ExportedCustomerData,
 } from './gdpr'
+export {
+  getMyLoyaltyAccount,
+  getMyLoyaltyTransactions,
+  enrollInLoyaltyProgram,
+  awardLoyaltyPoints,
+  redeemLoyaltyPoints,
+  getCustomerLoyaltyAccount,
+  type LoyaltyAccountSummary,
+  type LoyaltyTransaction,
+} from './loyalty'

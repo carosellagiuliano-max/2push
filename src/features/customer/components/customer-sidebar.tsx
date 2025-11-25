@@ -3,7 +3,7 @@
 import * as React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Calendar, User, LogOut, ShoppingBag, Loader2, Shield } from 'lucide-react'
+import { Calendar, User, LogOut, ShoppingBag, Loader2, Shield, Gift } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 import { useAuth, SessionExpiredModal } from '@/features/auth'
@@ -12,6 +12,7 @@ const navigation = [
   { name: 'Übersicht', href: '/konto', icon: User },
   { name: 'Termine', href: '/konto/termine', icon: Calendar },
   { name: 'Bestellungen', href: '/konto/bestellungen', icon: ShoppingBag },
+  { name: 'Treueprogramm', href: '/konto/treueprogramm', icon: Gift },
   { name: 'Datenschutz', href: '/konto/datenschutz', icon: Shield },
 ]
 
