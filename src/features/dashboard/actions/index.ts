@@ -55,3 +55,20 @@ export {
   getDashboardData,
   type DashboardData,
 } from './dashboard'
+
+export {
+  getSalons,
+  getSalon,
+  createSalon,
+  updateSalon,
+  deactivateSalon,
+  reactivateSalon,
+  deleteSalon,
+  getHQStats,
+  type SalonListItem,
+  type SalonDetail,
+  type CreateSalonInput,
+  type UpdateSalonInput,
+  type SalonResult,
+  type HQStats,
+} from './salons'
