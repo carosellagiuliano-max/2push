@@ -149,7 +149,7 @@ export function QuickAppointmentModal({
 
     const debounce = setTimeout(searchCustomers, 300)
     return () => clearTimeout(debounce)
-  }, [customerSearchQuery, onCustomerSearch])
+  }, [customerSearchQuery, onCustomerSearch, toast])
 
   const handleSelectCustomer = (customer: Customer) => {
     setSelectedCustomer(customer)

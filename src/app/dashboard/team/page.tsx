@@ -1,7 +1,6 @@
 'use client'
 
 import * as React from 'react'
-import { useRouter } from 'next/navigation'
 import {
   Plus,
   Pencil,
@@ -43,7 +42,6 @@ import {
 import { getServicesForCalendar } from '@/features/dashboard/actions'
 
 export default function TeamPage() {
-  const router = useRouter()
   const { toast } = useToast()
 
   const [salonId, setSalonId] = React.useState<string | null>(null)
@@ -64,14 +62,7 @@ export default function TeamPage() {
     init()
   }, [])
 
-  // Fetch data when salon ID is available
-  React.useEffect(() => {
-    if (salonId) {
-      fetchData()
-    }
-  }, [salonId])
-
-  const fetchData = async () => {
+  const fetchData = React.useCallback(async () => {
     if (!salonId) return
 
     try {
@@ -91,7 +82,14 @@ export default function TeamPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [salonId, toast])
+
+  // Fetch data when salon ID is available
+  React.useEffect(() => {
+    if (salonId) {
+      fetchData()
+    }
+  }, [salonId, fetchData])
 
   const handleRefresh = async () => {
     setIsRefreshing(true)

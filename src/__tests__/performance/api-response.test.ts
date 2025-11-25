@@ -85,7 +85,7 @@ describe('Performance Tests', () => {
       const totalDuration = performance.now() - start
 
       expect(results).toHaveLength(concurrentRequests)
-      expect(results.every((r) => r.success)).toBe(true)
+      expect(results.every((r: { success: boolean }) => r.success)).toBe(true)
 
       // Parallel execution should be faster than sequential
       expect(totalDuration).toBeLessThan(concurrentRequests * 50)

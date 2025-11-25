@@ -88,7 +88,7 @@ describe('Payment Types', () => {
 })
 
 describe('Order Status Transitions', () => {
-  const VALID_TRANSITIONS = {
+  const VALID_TRANSITIONS: Record<string, string[]> = {
     pending: ['paid', 'cancelled'],
     paid: ['processing', 'shipped', 'cancelled', 'refunded'],
     processing: ['shipped', 'cancelled'],
@@ -102,7 +102,7 @@ describe('Order Status Transitions', () => {
   it('validates correct transitions', () => {
     Object.entries(VALID_TRANSITIONS).forEach(([from, validTargets]) => {
       validTargets.forEach((to) => {
-        const validNextStates = VALID_TRANSITIONS[from as keyof typeof VALID_TRANSITIONS]
+        const validNextStates = VALID_TRANSITIONS[from]
         expect(validNextStates.includes(to)).toBe(true)
       })
     })

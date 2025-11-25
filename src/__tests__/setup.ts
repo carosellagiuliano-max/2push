@@ -194,7 +194,6 @@ export function setupMockResponse(table: string, data: unknown, error: unknown =
     maybeSingle: vi.fn().mockResolvedValue({ data, error }),
   }
 
-  // @ts-expect-error - mocking supabase client
   mockSupabaseClient.from.mockImplementation((t: string) => {
     if (t === table) return mockChain
     return mockChain
