@@ -85,7 +85,7 @@ export async function createPaymentIntent(
       amount: paymentIntent.amount,
       currency: paymentIntent.currency,
     }
-  } catch (error) {
+  } catch (error: unknown) {
     if (error instanceof Stripe.errors.StripeError) {
       throw new PaymentError(
         'PAYMENT_INTENT_CREATION_FAILED',
@@ -105,7 +105,7 @@ export async function getPaymentIntent(paymentIntentId: string): Promise<Stripe.
 
   try {
     return await stripe.paymentIntents.retrieve(paymentIntentId)
-  } catch (error) {
+  } catch (error: unknown) {
     if (error instanceof Stripe.errors.StripeError) {
       throw new PaymentError(
         'PAYMENT_INTENT_NOT_FOUND',
@@ -139,7 +139,7 @@ export async function cancelPaymentIntent(paymentIntentId: string): Promise<void
     }
 
     await stripe.paymentIntents.cancel(paymentIntentId)
-  } catch (error) {
+  } catch (error: unknown) {
     if (error instanceof PaymentError) throw error
     if (error instanceof Stripe.errors.StripeError) {
       throw new PaymentError(
@@ -202,7 +202,7 @@ export async function createRefund(input: RefundInput): Promise<RefundResult> {
       refundId: refund.id,
       amount: refund.amount,
     }
-  } catch (error) {
+  } catch (error: unknown) {
     if (error instanceof Stripe.errors.StripeError) {
       return {
         success: false,
@@ -290,7 +290,7 @@ export async function createCheckoutSession(
       sessionId: session.id,
       url: session.url!,
     }
-  } catch (error) {
+  } catch (error: unknown) {
     if (error instanceof Stripe.errors.StripeError) {
       throw new PaymentError(
         'CHECKOUT_SESSION_CREATION_FAILED',

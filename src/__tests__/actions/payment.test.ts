@@ -20,7 +20,7 @@ const mockSupabaseClient = {
   update: vi.fn(() => mockSupabaseClient),
   delete: vi.fn(() => mockSupabaseClient),
   eq: vi.fn(() => mockSupabaseClient),
-  single: vi.fn(() => Promise.resolve({ data: null, error: null })),
+  single: vi.fn(() => Promise.resolve({ data: null as unknown, error: null as unknown })),
   order: vi.fn(() => mockSupabaseClient),
 }
 

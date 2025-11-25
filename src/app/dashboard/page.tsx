@@ -94,8 +94,8 @@ export default function DashboardPage() {
     const results = await searchCustomers(salonId, query)
     return results.map((c) => ({
       id: c.id,
-      first_name: c.firstName,
-      last_name: c.lastName,
+      first_name: c.first_name,
+      last_name: c.last_name,
       email: c.email,
       phone: c.phone,
     }))

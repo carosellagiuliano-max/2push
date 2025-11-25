@@ -320,7 +320,8 @@ async function getRevenueByStaff(
   const staffMap = new Map<string, { name: string; revenue: number; count: number }>()
 
   for (const appointment of appointments || []) {
-    const staffName = (appointment.staff as { display_name: string })?.display_name || 'Unbekannt'
+    const staffData = appointment.staff as { display_name: string } | { display_name: string }[] | null
+    const staffName = Array.isArray(staffData) ? staffData[0]?.display_name : staffData?.display_name || 'Unbekannt'
     const key = appointment.staff_id
 
     const existing = staffMap.get(key) || { name: staffName, revenue: 0, count: 0 }
@@ -426,8 +427,10 @@ async function getTopProducts(
   for (const item of orderItems || []) {
     const key = item.product_name
     const existing = productMap.get(key) || { brand: null, sold: 0, revenue: 0 }
+    const productData = item.products as { brand: string | null } | { brand: string | null }[] | null
+    const brand = Array.isArray(productData) ? productData[0]?.brand : productData?.brand
     productMap.set(key, {
-      brand: (item.products as { brand: string | null })?.brand || existing.brand,
+      brand: brand || existing.brand,
       sold: existing.sold + item.quantity,
       revenue: existing.revenue + item.total_price,
     })

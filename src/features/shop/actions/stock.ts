@@ -458,12 +458,15 @@ export async function getLowStockProducts(salonId: string): Promise<
 
   return allInventory
     .filter((item) => item.current_stock <= item.minimum_stock)
-    .map((item) => ({
-      productId: item.product_id,
-      productName: (item.products as { name: string })?.name || 'Unknown',
-      currentStock: item.current_stock,
-      minimumStock: item.minimum_stock,
-    }))
+    .map((item) => {
+      const productData = item.products as { name: string } | { name: string }[] | null
+      return {
+        productId: item.product_id,
+        productName: Array.isArray(productData) ? productData[0]?.name : productData?.name || 'Unknown',
+        currentStock: item.current_stock,
+        minimumStock: item.minimum_stock,
+      }
+    })
 }
 
 /**

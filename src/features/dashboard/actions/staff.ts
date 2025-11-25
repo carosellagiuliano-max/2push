@@ -131,7 +131,10 @@ export async function getStaffMembers(salonId: string): Promise<StaffMember[]> {
 
     const staffSkills = (skills || [])
       .filter((s) => s.staff_id === staff.id)
-      .map((s) => (s.services as { name: string })?.name || 'Unknown')
+      .map((s) => {
+        const serviceData = s.services as { name: string } | { name: string }[] | null
+        return Array.isArray(serviceData) ? serviceData[0]?.name : serviceData?.name || 'Unknown'
+      })
 
     const staffRole = roles?.find((r) => r.profile_id === staff.profile_id)
 
@@ -227,7 +230,10 @@ export async function getStaffMember(staffId: string): Promise<StaffMember | nul
       startMinutes: wh.start_minutes,
       endMinutes: wh.end_minutes,
     })),
-    skills: (skills || []).map((s) => (s.services as { name: string })?.name || 'Unknown'),
+    skills: (skills || []).map((s) => {
+      const serviceData = s.services as { name: string } | { name: string }[] | null
+      return Array.isArray(serviceData) ? serviceData[0]?.name : serviceData?.name || 'Unknown'
+    }),
     role,
   }
 }
