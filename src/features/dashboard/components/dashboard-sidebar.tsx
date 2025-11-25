@@ -35,6 +35,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { useAuth } from '@/features/auth'
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -69,9 +70,10 @@ interface DashboardSidebarProps {
 
 function SidebarContent({ user, isHqUser = false }: DashboardSidebarProps) {
   const pathname = usePathname()
+  const { signOut } = useAuth()
 
   const handleLogout = async () => {
-    // TODO: Implement logout
+    await signOut()
   }
 
   return (

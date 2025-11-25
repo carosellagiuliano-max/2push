@@ -322,6 +322,149 @@ export interface BlockedTime {
   updated_at: string
 }
 
+// ============================================
+// PAYMENT & ORDER TYPES
+// ============================================
+
+export interface Payment {
+  id: string
+  salon_id: string
+  order_id: string | null
+  appointment_id: string | null
+  customer_id: string | null
+  amount: number
+  currency: string
+  method: PaymentMethod
+  status: PaymentStatus
+  stripe_payment_intent_id: string | null
+  stripe_charge_id: string | null
+  failure_code: string | null
+  failure_message: string | null
+  metadata: Record<string, unknown> | null
+  created_at: string
+  updated_at: string
+}
+
+export interface PaymentEvent {
+  id: string
+  payment_id: string
+  event_type: string
+  amount_delta: number
+  external_reference: string | null
+  raw_payload: Record<string, unknown> | null
+  created_at: string
+}
+
+export interface StripeEventLog {
+  id: string
+  stripe_event_id: string
+  event_type: string
+  processed_at: string
+  payload: Record<string, unknown>
+}
+
+export interface Order {
+  id: string
+  salon_id: string
+  order_number: string
+  customer_id: string | null
+  customer_email: string
+  customer_first_name: string
+  customer_last_name: string
+  customer_phone: string | null
+  status: OrderStatus
+  payment_status: PaymentStatus
+  payment_method: string | null
+  subtotal: number
+  shipping_cost: number
+  discount: number
+  total: number
+  voucher_code: string | null
+  shipping_method_id: string | null
+  shipping_method_name: string | null
+  shipping_address_name: string | null
+  shipping_address_street: string | null
+  shipping_address_city: string | null
+  shipping_address_postal_code: string | null
+  shipping_address_country: string | null
+  billing_address_name: string | null
+  billing_address_street: string | null
+  billing_address_city: string | null
+  billing_address_postal_code: string | null
+  billing_address_country: string | null
+  stripe_payment_intent_id: string | null
+  paid_at: string | null
+  shipped_at: string | null
+  delivered_at: string | null
+  cancelled_at: string | null
+  cancellation_reason: string | null
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface OrderItem {
+  id: string
+  order_id: string
+  product_id: string
+  product_name: string
+  product_sku: string | null
+  quantity: number
+  unit_price: number
+  tax_rate_percent: number
+  tax_amount: number
+  total_price: number
+  sort_order: number
+  created_at: string
+}
+
+export interface InventoryItem {
+  id: string
+  salon_id: string
+  product_id: string
+  current_stock: number
+  minimum_stock: number
+  maximum_stock: number | null
+  reorder_point: number | null
+  last_counted_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface StockMovement {
+  id: string
+  inventory_item_id: string
+  movement_type: 'purchase' | 'sale' | 'return' | 'adjustment' | 'transfer'
+  quantity_delta: number
+  reference_type: string | null
+  reference_id: string | null
+  notes: string | null
+  created_by: string | null
+  created_at: string
+}
+
+export interface ShippingMethod {
+  id: string
+  salon_id: string | null
+  name: string
+  description: string | null
+  price: number
+  estimated_days: string | null
+  is_active: boolean
+  sort_order: number
+  created_at: string
+  updated_at: string
+}
+
+export interface InvoiceCounter {
+  id: string
+  salon_id: string
+  year: number
+  current_value: number
+  created_at: string
+  updated_at: string
+}
+
 export interface Database {
   public: {
     Tables: {

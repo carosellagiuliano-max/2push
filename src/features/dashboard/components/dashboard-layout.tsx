@@ -4,6 +4,7 @@ import * as React from 'react'
 
 import { DashboardSidebar } from './dashboard-sidebar'
 import { Toaster } from '@/components/ui/toaster'
+import { SessionExpiredModal } from '@/features/auth'
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -28,6 +29,7 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
       </main>
 
       <Toaster />
+      <SessionExpiredModal />
     </div>
   )
 }

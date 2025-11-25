@@ -6,6 +6,49 @@
 
 import { vi } from 'vitest'
 
+// Mock Stripe module
+vi.mock('stripe', () => {
+  const mockStripe = {
+    paymentIntents: {
+      create: vi.fn(),
+      retrieve: vi.fn(),
+      cancel: vi.fn(),
+    },
+    refunds: {
+      create: vi.fn(),
+    },
+    checkout: {
+      sessions: {
+        create: vi.fn(),
+      },
+    },
+    customers: {
+      list: vi.fn(),
+      create: vi.fn(),
+    },
+    webhooks: {
+      constructEvent: vi.fn(),
+    },
+    errors: {
+      StripeError: class StripeError extends Error {
+        constructor(message: string) {
+          super(message)
+          this.name = 'StripeError'
+        }
+      },
+      StripeSignatureVerificationError: class StripeSignatureVerificationError extends Error {
+        constructor(message: string) {
+          super(message)
+          this.name = 'StripeSignatureVerificationError'
+        }
+      },
+    },
+  }
+  return {
+    default: vi.fn(() => mockStripe),
+  }
+})
+
 // Mock Supabase client
 export const mockSupabaseClient = {
   auth: {
@@ -194,9 +237,7 @@ export function setupMockResponse(table: string, data: unknown, error: unknown =
     maybeSingle: vi.fn().mockResolvedValue({ data, error }),
   }
 
-  // @ts-expect-error - mocking supabase client
-  mockSupabaseClient.from.mockImplementation((t: string) => {
-    if (t === table) return mockChain
+  mockSupabaseClient.from.mockImplementation(() => {
     return mockChain
   })
 

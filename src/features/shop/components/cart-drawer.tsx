@@ -22,6 +22,22 @@ export function CartDrawer() {
   const [voucherCode, setVoucherCode] = React.useState('')
   const [isApplyingVoucher, setIsApplyingVoucher] = React.useState(false)
 
+  function handleRemoveItem(productId: string, productName: string) {
+    removeItem(productId)
+    toast({
+      title: 'Artikel entfernt',
+      description: `${productName} wurde aus dem Warenkorb entfernt.`,
+    })
+  }
+
+  function handleRemoveVoucher() {
+    removeVoucher()
+    toast({
+      title: 'Gutschein entfernt',
+      description: 'Der Gutscheincode wurde entfernt.',
+    })
+  }
+
   async function handleApplyVoucher() {
     if (!voucherCode.trim()) return
 
@@ -108,7 +124,7 @@ export function CartDrawer() {
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 text-destructive hover:text-destructive ml-auto"
-                        onClick={() => removeItem(item.product.id)}
+                        onClick={() => handleRemoveItem(item.product.id, item.product.name)}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -134,7 +150,7 @@ export function CartDrawer() {
                     variant="ghost"
                     size="sm"
                     className="h-8 text-green-700 hover:text-green-900"
-                    onClick={removeVoucher}
+                    onClick={handleRemoveVoucher}
                   >
                     <X className="h-4 w-4" />
                   </Button>
