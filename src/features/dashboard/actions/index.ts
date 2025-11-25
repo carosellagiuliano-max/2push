@@ -37,3 +37,16 @@ export {
   type UpdateStaffInput,
   type StaffResult,
 } from './staff'
+
+export {
+  getAnalyticsData,
+  exportAnalyticsCSV,
+  type AnalyticsPeriod,
+  type KPIStats,
+  type RevenueByService,
+  type RevenueByStaff,
+  type DailyRevenue,
+  type TopProduct,
+  type AnalyticsData,
+  type AnalyticsInsight,
+} from './analytics'
