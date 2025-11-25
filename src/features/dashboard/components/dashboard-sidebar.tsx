@@ -13,8 +13,9 @@ import {
   UserCircle,
   LogOut,
   Menu,
-  X,
   ChevronDown,
+  Package,
+  UserCog,
 } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
@@ -34,7 +35,9 @@ const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Kalender', href: '/dashboard/calendar', icon: Calendar },
   { name: 'Kunden', href: '/dashboard/customers', icon: Users },
+  { name: 'Team', href: '/dashboard/team', icon: UserCog },
   { name: 'Dienstleistungen', href: '/dashboard/services', icon: Scissors },
+  { name: 'Produkte', href: '/dashboard/products', icon: Package },
   { name: 'Arbeitszeiten', href: '/dashboard/schedule', icon: Clock },
   { name: 'Einstellungen', href: '/dashboard/settings', icon: Settings },
 ]
