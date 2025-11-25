@@ -16,6 +16,10 @@ import {
   ChevronDown,
   Package,
   UserCog,
+  BarChart3,
+  ShoppingBag,
+  Wallet,
+  Bell,
 } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
@@ -38,6 +42,10 @@ const navigation = [
   { name: 'Team', href: '/dashboard/team', icon: UserCog },
   { name: 'Dienstleistungen', href: '/dashboard/services', icon: Scissors },
   { name: 'Produkte', href: '/dashboard/products', icon: Package },
+  { name: 'Bestellungen', href: '/dashboard/orders', icon: ShoppingBag },
+  { name: 'Statistiken', href: '/dashboard/analytics', icon: BarChart3 },
+  { name: 'Finanzen', href: '/dashboard/finance', icon: Wallet },
+  { name: 'Benachrichtigungen', href: '/dashboard/notifications', icon: Bell },
   { name: 'Arbeitszeiten', href: '/dashboard/schedule', icon: Clock },
   { name: 'Einstellungen', href: '/dashboard/settings', icon: Settings },
 ]
