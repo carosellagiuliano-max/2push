@@ -137,6 +137,11 @@ export function QuickAppointmentModal({
         setSearchResults(results)
       } catch (error) {
         console.error('Customer search failed:', error)
+        toast({
+          title: 'Fehler',
+          description: 'Kundensuche fehlgeschlagen.',
+          variant: 'destructive',
+        })
       } finally {
         setIsSearching(false)
       }

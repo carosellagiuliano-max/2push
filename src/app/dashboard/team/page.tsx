@@ -36,18 +36,17 @@ import {
   deactivateStaffMember,
   reactivateStaffMember,
   assignRole,
+  getCurrentUserSalonId,
   type StaffMember,
   type CreateStaffInput,
 } from '@/features/dashboard/actions'
 import { getServicesForCalendar } from '@/features/dashboard/actions'
 
-// TODO: Get from auth context
-const SALON_ID = process.env.NEXT_PUBLIC_DEFAULT_SALON_ID || 'default-salon-id'
-
 export default function TeamPage() {
   const router = useRouter()
   const { toast } = useToast()
 
+  const [salonId, setSalonId] = React.useState<string | null>(null)
   const [staffMembers, setStaffMembers] = React.useState<StaffMember[]>([])
   const [services, setServices] = React.useState<Array<{ id: string; name: string }>>([])
   const [isLoading, setIsLoading] = React.useState(true)
@@ -56,16 +55,29 @@ export default function TeamPage() {
   const [showStaffModal, setShowStaffModal] = React.useState(false)
   const [editingStaff, setEditingStaff] = React.useState<StaffMember | null>(null)
 
-  // Fetch data on mount
+  // Fetch salon ID on mount
   React.useEffect(() => {
-    fetchData()
+    async function init() {
+      const id = await getCurrentUserSalonId()
+      setSalonId(id)
+    }
+    init()
   }, [])
 
+  // Fetch data when salon ID is available
+  React.useEffect(() => {
+    if (salonId) {
+      fetchData()
+    }
+  }, [salonId])
+
   const fetchData = async () => {
+    if (!salonId) return
+
     try {
       const [staffData, servicesData] = await Promise.all([
-        getStaffMembers(SALON_ID),
-        getServicesForCalendar(SALON_ID),
+        getStaffMembers(salonId),
+        getServicesForCalendar(salonId),
       ])
       setStaffMembers(staffData)
       setServices(servicesData.map((s) => ({ id: s.id, name: s.name })))
@@ -88,7 +100,9 @@ export default function TeamPage() {
   }
 
   const handleCreateStaff = async (data: CreateStaffInput) => {
-    const result = await createStaffMember(SALON_ID, data)
+    if (!salonId) return { success: false, error: 'Salon nicht verfügbar' }
+
+    const result = await createStaffMember(salonId, data)
     if (result.success) {
       await fetchData()
     }
@@ -122,9 +136,9 @@ export default function TeamPage() {
     }
 
     // Update role if staff has a linked profile and role changed
-    if (editingStaff.profileId && data.role && data.role !== editingStaff.role) {
+    if (editingStaff.profileId && data.role && data.role !== editingStaff.role && salonId) {
       // TODO: Get actual user ID from auth context for assignedBy
-      await assignRole(editingStaff.profileId, SALON_ID, data.role, 'system')
+      await assignRole(editingStaff.profileId, salonId, data.role, 'system')
     }
 
     await fetchData()
@@ -137,6 +151,7 @@ export default function TeamPage() {
       toast({
         title: 'Mitarbeiter deaktiviert',
         description: 'Der Mitarbeiter wurde erfolgreich deaktiviert.',
+        variant: 'success',
       })
       await fetchData()
     } else {
@@ -154,6 +169,7 @@ export default function TeamPage() {
       toast({
         title: 'Mitarbeiter reaktiviert',
         description: 'Der Mitarbeiter wurde erfolgreich reaktiviert.',
+        variant: 'success',
       })
       await fetchData()
     } else {

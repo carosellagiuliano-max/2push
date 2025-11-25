@@ -107,6 +107,7 @@ export default function SalonsPage() {
       toast({
         title: salon.isActive ? 'Salon deaktiviert' : 'Salon aktiviert',
         description: `${salon.name} wurde ${salon.isActive ? 'deaktiviert' : 'aktiviert'}.`,
+        variant: 'success',
       })
       await fetchData()
     } else {
@@ -129,6 +130,7 @@ export default function SalonsPage() {
       toast({
         title: 'Salon gelöscht',
         description: `${salon.name} wurde gelöscht.`,
+        variant: 'success',
       })
       await fetchData()
     } else {
