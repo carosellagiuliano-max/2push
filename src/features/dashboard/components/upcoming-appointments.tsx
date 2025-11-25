@@ -3,12 +3,11 @@
 import * as React from 'react'
 import { format, isToday, isTomorrow, differenceInMinutes } from 'date-fns'
 import { de } from 'date-fns/locale'
-import { Clock, User, ArrowRight } from 'lucide-react'
+import { Clock, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 
 import { cn } from '@/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import type { CalendarAppointment } from '../types'

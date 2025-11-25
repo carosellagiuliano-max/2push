@@ -225,7 +225,6 @@ export default function FinancePage() {
               <CardContent>
                 <div className="space-y-4">
                   {monthlyRevenue.map((month) => {
-                    const total = month.services + month.products
                     const maxTotal = Math.max(...monthlyRevenue.map((m) => m.services + m.products))
                     const servicesWidth = (month.services / maxTotal) * 100
                     const productsWidth = (month.products / maxTotal) * 100

@@ -14,7 +14,7 @@ import type { CustomerFilterValues } from '../types'
 
 interface CustomerFiltersProps {
   filters: CustomerFilterValues
-  onChange: (filters: CustomerFilterValues) => void
+  onChange: (_filters: CustomerFilterValues) => void
 }
 
 export function CustomerFilters({ filters, onChange }: CustomerFiltersProps) {

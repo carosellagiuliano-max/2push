@@ -9,7 +9,7 @@ interface CustomerPaginationProps {
   totalPages: number
   totalItems: number
   pageSize: number
-  onPageChange: (page: number) => void
+  onPageChange: (_page: number) => void
 }
 
 export function CustomerPagination({

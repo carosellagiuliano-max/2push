@@ -2,7 +2,7 @@
  * Customer feature types
  */
 
-import type { Customer, Appointment, AppointmentStatus } from '@/lib/database.types'
+import type { Customer, AppointmentStatus } from '@/lib/database.types'
 
 // Customer with computed/related data
 export interface CustomerWithStats extends Customer {

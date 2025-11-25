@@ -29,8 +29,8 @@ import type { CustomerWithStats } from '../types'
 
 interface CustomerTableProps {
   customers: CustomerWithStats[]
-  onDelete?: (customerId: string) => void
-  onRestore?: (customerId: string) => void
+  onDelete?: (_customerId: string) => void
+  onRestore?: (_customerId: string) => void
 }
 
 export function CustomerTable({

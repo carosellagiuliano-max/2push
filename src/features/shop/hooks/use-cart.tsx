@@ -8,12 +8,12 @@ interface CartContextValue {
   items: CartItem[]
   itemCount: number
   isOpen: boolean
-  setIsOpen: (open: boolean) => void
-  addItem: (product: Product, quantity?: number) => void
-  removeItem: (productId: string) => void
-  updateQuantity: (productId: string, quantity: number) => void
+  setIsOpen: (_open: boolean) => void
+  addItem: (_product: Product, _quantity?: number) => void
+  removeItem: (_productId: string) => void
+  updateQuantity: (_productId: string, _quantity: number) => void
   clearCart: () => void
-  applyVoucher: (code: string) => Promise<{ success: boolean; error?: string }>
+  applyVoucher: (_code: string) => Promise<{ success: boolean; error?: string }>
   removeVoucher: () => void
 }
 

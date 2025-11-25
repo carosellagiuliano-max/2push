@@ -22,7 +22,7 @@ const customerSchema = z.object({
 })
 
 interface CustomerFormProps {
-  onValidChange?: (isValid: boolean) => void
+  onValidChange?: (_isValid: boolean) => void
 }
 
 export function CustomerForm({ onValidChange }: CustomerFormProps) {

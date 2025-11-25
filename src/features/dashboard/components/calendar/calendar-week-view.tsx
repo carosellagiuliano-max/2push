@@ -22,15 +22,15 @@ interface CalendarWeekViewProps {
   selectedStaffIds: string[]
   startHour?: number
   endHour?: number
-  onEventClick?: (event: CalendarEvent) => void
-  onSlotClick?: (staffId: string, time: Date) => void
-  onDayClick?: (date: Date) => void
+  onEventClick?: (_event: CalendarEvent) => void
+  onSlotClick?: (_staffId: string, _time: Date) => void
+  onDayClick?: (_date: Date) => void
 }
 
 export function CalendarWeekView({
   date,
   events,
-  staff,
+  staff: _staff,
   selectedStaffIds,
   startHour = 8,
   endHour = 20,

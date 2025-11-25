@@ -14,7 +14,7 @@ interface BookingSuccessProps {
   appointmentId?: string
 }
 
-export function BookingSuccess({ appointmentId }: BookingSuccessProps) {
+export function BookingSuccess({ appointmentId: _appointmentId }: BookingSuccessProps) {
   const { selectedSlot, customerInfo, selectedServices, totalPrice, reset } = useBooking()
 
   const formatPrice = (price: number) => {

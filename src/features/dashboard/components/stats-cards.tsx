@@ -4,9 +4,7 @@ import * as React from 'react'
 import {
   Calendar,
   Users,
-  TrendingUp,
   AlertTriangle,
-  Clock,
   CreditCard,
 } from 'lucide-react'
 
@@ -19,7 +17,7 @@ interface StatsCardsProps {
   isLoading?: boolean
 }
 
-export function StatsCards({ stats, isLoading }: StatsCardsProps) {
+export function StatsCards({ stats, isLoading: _isLoading }: StatsCardsProps) {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('de-CH', {
       style: 'currency',

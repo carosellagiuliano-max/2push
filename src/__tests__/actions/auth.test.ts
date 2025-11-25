@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { createFormData, resetMocks, mockSupabaseClient } from '../setup'
+import { createFormData, resetMocks } from '../setup'
 
 // Import actions - we need to mock them properly
 const mockSignIn = vi.fn()

@@ -222,14 +222,12 @@ export default function CustomersPage() {
     handleFiltersChange({ ...filters, search })
   }
 
-  const handleDelete = async (customerId: string) => {
+  const handleDelete = async (_customerId: string) => {
     // TODO: Implement with real API
-    console.log('Delete customer:', customerId)
   }
 
-  const handleRestore = async (customerId: string) => {
+  const handleRestore = async (_customerId: string) => {
     // TODO: Implement with real API
-    console.log('Restore customer:', customerId)
   }
 
   return (

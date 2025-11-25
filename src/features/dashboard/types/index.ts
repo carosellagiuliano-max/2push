@@ -1,4 +1,4 @@
-import type { Appointment, Staff, Customer, Service } from '@/lib/database.types'
+import type { Appointment, Staff, Customer } from '@/lib/database.types'
 
 export type CalendarView = 'day' | 'week' | 'month'
 

@@ -2,7 +2,6 @@
 
 import * as React from 'react'
 import { format } from 'date-fns'
-import { de } from 'date-fns/locale'
 import { Calendar, Clock, User, Scissors, Loader2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -29,12 +28,12 @@ import type { StaffColumn } from '../types'
 
 interface QuickAppointmentModalProps {
   open: boolean
-  onOpenChange: (open: boolean) => void
+  onOpenChange: (_open: boolean) => void
   staff: StaffColumn[]
   services: Array<{ id: string; name: string; duration_minutes: number }>
   initialDate?: Date
   initialStaffId?: string
-  onSubmit?: (data: QuickAppointmentData) => Promise<void>
+  onSubmit?: (_data: QuickAppointmentData) => Promise<void>
 }
 
 interface QuickAppointmentData {

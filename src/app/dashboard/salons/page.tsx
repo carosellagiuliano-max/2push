@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import {
-  Building2,
   Plus,
   Search,
   MapPin,
@@ -126,12 +125,6 @@ const totalStats = {
 
 export default function SalonsPage() {
   const formatCurrency = (value: number) => `CHF ${value.toLocaleString('de-CH')}`
-  const formatDate = (date: string) =>
-    new Date(date).toLocaleDateString('de-CH', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    })
 
   return (
     <div className="space-y-6">

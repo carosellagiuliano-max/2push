@@ -13,11 +13,11 @@ interface SalonContextValue {
   /** Whether user has HQ role (cross-salon access) */
   isHqUser: boolean
   /** Switch to a different salon */
-  switchSalon: (salon: Salon) => void
+  switchSalon: (_salon: Salon) => void
   /** Set accessible salons (usually from server) */
-  setAccessibleSalons: (salons: Salon[]) => void
+  setAccessibleSalons: (_salons: Salon[]) => void
   /** Set HQ user status */
-  setIsHqUser: (isHq: boolean) => void
+  setIsHqUser: (_isHq: boolean) => void
 }
 
 const SalonContext = createContext<SalonContextValue | null>(null)

@@ -39,7 +39,7 @@ beforeEach(() => {
     revokeObjectURL: mockRevokeObjectURL,
   })
   vi.stubGlobal('Blob', class {
-    constructor(public content: string[], public options: { type: string }) {}
+    constructor(_content: string[], _options: { type: string }) {}
   })
 })
 

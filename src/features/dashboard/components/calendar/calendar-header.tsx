@@ -19,11 +19,11 @@ import type { CalendarView, StaffColumn } from '../../types'
 interface CalendarHeaderProps {
   currentDate: Date
   view: CalendarView
-  onDateChange: (date: Date) => void
-  onViewChange: (view: CalendarView) => void
+  onDateChange: (_date: Date) => void
+  onViewChange: (_view: CalendarView) => void
   staff: StaffColumn[]
   selectedStaffIds: string[]
-  onStaffFilterChange: (staffIds: string[]) => void
+  onStaffFilterChange: (_staffIds: string[]) => void
 }
 
 export function CalendarHeader({

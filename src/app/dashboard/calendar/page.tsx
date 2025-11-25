@@ -116,8 +116,8 @@ export default function CalendarPage() {
     setIsQuickModalOpen(true)
   }
 
-  const handleQuickAppointment = async (data: unknown) => {
-    console.log('Quick appointment:', data)
+  const handleQuickAppointment = async (_data: unknown) => {
+    // TODO: Implement actual appointment creation
     await new Promise((resolve) => setTimeout(resolve, 1000))
     setSelectedSlot(null)
   }
@@ -140,10 +140,10 @@ export default function CalendarPage() {
           events={events}
           staff={mockStaff}
           onSlotClick={handleSlotClick}
-          onEventEdit={(e) => console.log('Edit:', e)}
-          onEventCancel={(e) => console.log('Cancel:', e)}
-          onEventComplete={(e) => console.log('Complete:', e)}
-          onEventNoShow={(e) => console.log('No-show:', e)}
+          onEventEdit={() => { /* TODO: Implement edit */ }}
+          onEventCancel={() => { /* TODO: Implement cancel */ }}
+          onEventComplete={() => { /* TODO: Implement complete */ }}
+          onEventNoShow={() => { /* TODO: Implement no-show */ }}
         />
       </div>
 

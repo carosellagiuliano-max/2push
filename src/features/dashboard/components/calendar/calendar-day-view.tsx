@@ -2,7 +2,6 @@
 
 import * as React from 'react'
 import { format, isSameDay, setHours, setMinutes } from 'date-fns'
-import { de } from 'date-fns/locale'
 
 import { cn } from '@/lib/utils'
 import type { CalendarEvent, StaffColumn } from '../../types'
@@ -14,8 +13,8 @@ interface CalendarDayViewProps {
   selectedStaffIds: string[]
   startHour?: number
   endHour?: number
-  onEventClick?: (event: CalendarEvent) => void
-  onSlotClick?: (staffId: string, time: Date) => void
+  onEventClick?: (_event: CalendarEvent) => void
+  onSlotClick?: (_staffId: string, _time: Date) => void
 }
 
 export function CalendarDayView({

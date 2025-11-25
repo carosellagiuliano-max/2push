@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 
 interface CustomerSearchProps {
   value: string
-  onChange: (value: string) => void
+  onChange: (_value: string) => void
   placeholder?: string
 }
 

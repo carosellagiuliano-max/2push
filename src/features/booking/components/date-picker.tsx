@@ -19,7 +19,7 @@ import { Button } from '@/components/ui/button'
 
 interface DatePickerProps {
   selectedDate: Date | null
-  onSelectDate: (date: Date) => void
+  onSelectDate: (_date: Date) => void
   minDate?: Date
   maxDate?: Date
   disabledDates?: Date[]

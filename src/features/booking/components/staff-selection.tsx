@@ -4,7 +4,7 @@ import * as React from 'react'
 import { Check, User, Shuffle } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useBooking } from '../hooks/use-booking'

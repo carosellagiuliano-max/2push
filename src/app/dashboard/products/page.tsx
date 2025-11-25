@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Plus, Pencil, Trash2, Package, AlertTriangle, TrendingDown } from 'lucide-react'
+import { Plus, Pencil, Trash2, AlertTriangle, TrendingDown } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'

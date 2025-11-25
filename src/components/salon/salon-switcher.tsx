@@ -24,7 +24,7 @@ import type { Salon } from '@/lib/database.types'
 interface SalonSwitcherProps {
   salons: Salon[]
   currentSalon: Salon | null
-  onSalonChange: (salon: Salon) => void
+  onSalonChange: (_salon: Salon) => void
   isHqUser?: boolean
   onCreateSalon?: () => void
   className?: string

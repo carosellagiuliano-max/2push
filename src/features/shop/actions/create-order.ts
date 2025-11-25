@@ -189,7 +189,7 @@ export async function createOrder(
   }
 }
 
-export async function getOrder(orderId: string): Promise<Order | null> {
+export async function getOrder(_orderId: string): Promise<Order | null> {
   // In production: Fetch from database
   // For now, return null (order not found)
   return null

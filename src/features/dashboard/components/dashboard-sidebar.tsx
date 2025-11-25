@@ -72,7 +72,6 @@ function SidebarContent({ user, isHqUser = false }: DashboardSidebarProps) {
 
   const handleLogout = async () => {
     // TODO: Implement logout
-    console.log('Logout')
   }
 
   return (

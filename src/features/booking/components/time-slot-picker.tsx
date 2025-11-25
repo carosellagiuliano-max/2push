@@ -15,7 +15,7 @@ import type { TimeSlot } from '../types'
 interface TimeSlotPickerProps {
   availableSlots: TimeSlot[]
   isLoading?: boolean
-  onDateChange: (date: Date) => void
+  onDateChange: (_date: Date) => void
   selectedDate: Date | null
   maxHorizonDays?: number
 }

@@ -17,12 +17,12 @@ interface CalendarProps {
   startHour?: number
   endHour?: number
   className?: string
-  onEventClick?: (event: CalendarEvent) => void
-  onSlotClick?: (staffId: string, time: Date) => void
-  onEventEdit?: (event: CalendarEvent) => void
-  onEventCancel?: (event: CalendarEvent) => void
-  onEventComplete?: (event: CalendarEvent) => void
-  onEventNoShow?: (event: CalendarEvent) => void
+  onEventClick?: (_event: CalendarEvent) => void
+  onSlotClick?: (_staffId: string, _time: Date) => void
+  onEventEdit?: (_event: CalendarEvent) => void
+  onEventCancel?: (_event: CalendarEvent) => void
+  onEventComplete?: (_event: CalendarEvent) => void
+  onEventNoShow?: (_event: CalendarEvent) => void
 }
 
 export function Calendar({

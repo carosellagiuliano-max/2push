@@ -194,8 +194,8 @@ export function setupMockResponse(table: string, data: unknown, error: unknown =
     maybeSingle: vi.fn().mockResolvedValue({ data, error }),
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ;(mockSupabaseClient.from as any).mockImplementation((t: string) => {
+  // @ts-expect-error - mocking supabase client
+  mockSupabaseClient.from.mockImplementation((t: string) => {
     if (t === table) return mockChain
     return mockChain
   })

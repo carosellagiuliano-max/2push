@@ -4,9 +4,7 @@ import * as React from 'react'
 import { format } from 'date-fns'
 import { de } from 'date-fns/locale'
 import {
-  Calendar,
   Clock,
-  User,
   Phone,
   Mail,
   Scissors,
@@ -14,12 +12,10 @@ import {
   MoreVertical,
   Edit,
   Trash,
-  X as XIcon,
   CheckCircle,
   AlertCircle,
 } from 'lucide-react'
 
-import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -44,11 +40,11 @@ import type { CalendarEvent } from '../../types'
 interface AppointmentDetailModalProps {
   event: CalendarEvent | null
   open: boolean
-  onOpenChange: (open: boolean) => void
-  onEdit?: (event: CalendarEvent) => void
-  onCancel?: (event: CalendarEvent) => void
-  onComplete?: (event: CalendarEvent) => void
-  onNoShow?: (event: CalendarEvent) => void
+  onOpenChange: (_open: boolean) => void
+  onEdit?: (_event: CalendarEvent) => void
+  onCancel?: (_event: CalendarEvent) => void
+  onComplete?: (_event: CalendarEvent) => void
+  onNoShow?: (_event: CalendarEvent) => void
 }
 
 export function AppointmentDetailModal({

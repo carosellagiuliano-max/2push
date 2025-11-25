@@ -12,27 +12,27 @@ import type {
 
 interface BookingContextValue extends BookingState {
   // Navigation
-  setStep: (step: BookingStep) => void
+  setStep: (_step: BookingStep) => void
   nextStep: () => void
   prevStep: () => void
   canProceed: boolean
 
   // Service selection
-  addService: (service: ServiceWithPrice) => void
-  removeService: (serviceId: string) => void
+  addService: (_service: ServiceWithPrice) => void
+  removeService: (_serviceId: string) => void
   clearServices: () => void
 
   // Staff selection
-  selectStaff: (staff: StaffWithSchedule | null) => void
+  selectStaff: (_staff: StaffWithSchedule | null) => void
 
   // Time slot selection
-  selectSlot: (slot: TimeSlot | null) => void
+  selectSlot: (_slot: TimeSlot | null) => void
 
   // Customer info
-  setCustomerInfo: (info: CustomerInfo) => void
+  setCustomerInfo: (_info: CustomerInfo) => void
 
   // Notes
-  setNotes: (notes: string) => void
+  setNotes: (_notes: string) => void
 
   // Calculated values
   totalDuration: number

@@ -130,8 +130,7 @@ const mockAppointments: CalendarAppointment[] = [
 export default function DashboardPage() {
   const [isQuickModalOpen, setIsQuickModalOpen] = React.useState(false)
 
-  const handleQuickAppointment = async (data: unknown) => {
-    console.log('Quick appointment:', data)
+  const handleQuickAppointment = async (_data: unknown) => {
     // TODO: Implement actual appointment creation
     await new Promise((resolve) => setTimeout(resolve, 1000))
   }
