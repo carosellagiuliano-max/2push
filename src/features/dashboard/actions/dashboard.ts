@@ -6,6 +6,34 @@ import { logger } from '@/lib/logging'
 import type { DashboardStats, CalendarAppointment, StaffColumn } from '../types'
 
 // ============================================
+// AUTH HELPERS
+// ============================================
+
+/**
+ * Get the current user's salon ID from their role
+ */
+export async function getCurrentUserSalonId(): Promise<string | null> {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return null
+  }
+
+  // Get salon_id from user's role
+  const { data: userRole } = await supabase
+    .from('user_roles')
+    .select('salon_id')
+    .eq('profile_id', user.id)
+    .single()
+
+  return userRole?.salon_id || null
+}
+
+// ============================================
 // TYPES
 // ============================================
 

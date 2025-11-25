@@ -53,6 +53,7 @@ export {
 
 export {
   getDashboardData,
+  getCurrentUserSalonId,
   type DashboardData,
 } from './dashboard'
 

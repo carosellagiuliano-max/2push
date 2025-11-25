@@ -30,16 +30,15 @@ import {
 import {
   getAnalyticsData,
   exportAnalyticsCSV,
+  getCurrentUserSalonId,
   type AnalyticsPeriod,
   type AnalyticsData,
   type AnalyticsInsight,
 } from '@/features/dashboard/actions'
 
-// TODO: Get from auth context
-const SALON_ID = process.env.NEXT_PUBLIC_DEFAULT_SALON_ID || 'default-salon-id'
-
 export default function AnalyticsPage() {
   const { toast } = useToast()
+  const [salonId, setSalonId] = React.useState<string | null>(null)
   const [period, setPeriod] = React.useState<AnalyticsPeriod>('month')
   const [data, setData] = React.useState<AnalyticsData | null>(null)
   const [isLoading, setIsLoading] = React.useState(true)
@@ -50,14 +49,25 @@ export default function AnalyticsPage() {
   const formatCurrencyDecimal = (value: number) => `CHF ${value.toLocaleString('de-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
   const formatPercent = (value: number) => `${value > 0 ? '+' : ''}${value.toFixed(1)}%`
 
-  // Fetch data on mount and when period changes
+  // Fetch salon ID on mount
   React.useEffect(() => {
-    fetchData()
-  }, [period])
+    const loadSalonId = async () => {
+      const id = await getCurrentUserSalonId()
+      setSalonId(id)
+    }
+    loadSalonId()
+  }, [])
 
-  const fetchData = async () => {
+  // Fetch data when salon ID or period changes
+  React.useEffect(() => {
+    if (salonId) {
+      fetchData(salonId)
+    }
+  }, [salonId, period])
+
+  const fetchData = async (currentSalonId: string) => {
     try {
-      const analyticsData = await getAnalyticsData(SALON_ID, period)
+      const analyticsData = await getAnalyticsData(currentSalonId, period)
       setData(analyticsData)
     } catch (error) {
       console.error('Failed to fetch analytics:', error)
@@ -72,15 +82,17 @@ export default function AnalyticsPage() {
   }
 
   const handleRefresh = async () => {
+    if (!salonId) return
     setIsRefreshing(true)
-    await fetchData()
+    await fetchData(salonId)
     setIsRefreshing(false)
   }
 
   const handleExport = async () => {
+    if (!salonId) return
     setIsExporting(true)
     try {
-      const result = await exportAnalyticsCSV(SALON_ID, period)
+      const result = await exportAnalyticsCSV(salonId, period)
       if (result.success && result.csv) {
         // Create and download CSV file
         const blob = new Blob([result.csv], { type: 'text/csv;charset=utf-8;' })

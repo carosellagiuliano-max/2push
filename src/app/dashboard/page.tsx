@@ -10,6 +10,7 @@ import {
   UpcomingAppointments,
   QuickAppointmentModal,
   getDashboardData,
+  getCurrentUserSalonId,
   createAdminAppointment,
   searchCustomers,
   createWalkInCustomer,
@@ -17,11 +18,9 @@ import {
 import { useToast } from '@/components/ui/use-toast'
 import type { DashboardStats, CalendarAppointment, StaffColumn } from '@/features/dashboard'
 
-// TODO: Get from authenticated user's salon
-const SALON_ID = 'f47ac10b-58cc-4372-a567-0e02b2c3d479'
-
 export default function DashboardPage() {
   const { toast } = useToast()
+  const [salonId, setSalonId] = React.useState<string | null>(null)
   const [isQuickModalOpen, setIsQuickModalOpen] = React.useState(false)
   const [isLoading, setIsLoading] = React.useState(true)
   const [isRefreshing, setIsRefreshing] = React.useState(false)
@@ -39,9 +38,9 @@ export default function DashboardPage() {
   const [staff, setStaff] = React.useState<StaffColumn[]>([])
   const [services, setServices] = React.useState<Array<{ id: string; name: string; duration_minutes: number }>>([])
 
-  const fetchData = React.useCallback(async () => {
+  const fetchData = React.useCallback(async (currentSalonId: string) => {
     try {
-      const data = await getDashboardData(SALON_ID)
+      const data = await getDashboardData(currentSalonId)
       setStats(data.stats)
       setUpcomingAppointments(data.upcomingAppointments)
       setStaff(data.staff)
@@ -56,20 +55,32 @@ export default function DashboardPage() {
     }
   }, [toast])
 
-  // Initial load
+  // Load salon ID on mount
   React.useEffect(() => {
-    const loadData = async () => {
-      setIsLoading(true)
-      await fetchData()
-      setIsLoading(false)
+    const loadSalonId = async () => {
+      const id = await getCurrentUserSalonId()
+      setSalonId(id)
     }
-    loadData()
-  }, [fetchData])
+    loadSalonId()
+  }, [])
+
+  // Fetch data when salon ID is available
+  React.useEffect(() => {
+    if (salonId) {
+      const loadData = async () => {
+        setIsLoading(true)
+        await fetchData(salonId)
+        setIsLoading(false)
+      }
+      loadData()
+    }
+  }, [salonId, fetchData])
 
   // Refresh handler
   const handleRefresh = async () => {
+    if (!salonId) return
     setIsRefreshing(true)
-    await fetchData()
+    await fetchData(salonId)
     setIsRefreshing(false)
     toast({
       title: 'Aktualisiert',
@@ -79,7 +90,8 @@ export default function DashboardPage() {
 
   // Customer search for quick appointment modal
   const handleCustomerSearch = async (query: string) => {
-    const results = await searchCustomers(SALON_ID, query)
+    if (!salonId) return []
+    const results = await searchCustomers(salonId, query)
     return results.map((c) => ({
       id: c.id,
       first_name: c.firstName,
@@ -91,7 +103,8 @@ export default function DashboardPage() {
 
   // Create walk-in customer
   const handleCreateWalkIn = async (firstName: string, lastName: string, phone?: string) => {
-    return createWalkInCustomer(SALON_ID, firstName, lastName, phone)
+    if (!salonId) return { success: false, error: 'Salon nicht gefunden' }
+    return createWalkInCustomer(salonId, firstName, lastName, phone)
   }
 
   // Create quick appointment
@@ -102,8 +115,9 @@ export default function DashboardPage() {
     startsAt: Date
     notes?: string
   }) => {
+    if (!salonId) return
     const result = await createAdminAppointment({
-      salonId: SALON_ID,
+      salonId: salonId,
       customerId: data.customerId,
       staffId: data.staffId,
       serviceIds: data.serviceIds,
@@ -118,7 +132,7 @@ export default function DashboardPage() {
       })
       setIsQuickModalOpen(false)
       // Refresh dashboard data
-      await fetchData()
+      await fetchData(salonId)
     } else {
       toast({
         title: 'Fehler',
