@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Calendar, User, LogOut } from 'lucide-react'
+import { Calendar, User, LogOut, ShoppingBag } from 'lucide-react'
 
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
@@ -8,6 +8,7 @@ import { signOut } from '@/features/auth'
 const navigation = [
   { name: 'Übersicht', href: '/konto', icon: User },
   { name: 'Termine', href: '/konto/termine', icon: Calendar },
+  { name: 'Bestellungen', href: '/konto/bestellungen', icon: ShoppingBag },
 ]
 
 export default function CustomerLayout({
