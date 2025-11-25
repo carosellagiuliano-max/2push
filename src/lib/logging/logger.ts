@@ -122,13 +122,23 @@ function log(level: LogLevel, message: string, context?: LogContext, error?: Err
 
 /**
  * Logger object with level-specific methods
+ *
+ * Usage:
+ * - logger.info('message', { context })
+ * - logger.error('message', { error: 'details', context })
+ * - logger.error('message', errorObject, { context })
  */
 export const logger = {
   debug: (message: string, context?: LogContext) => log('debug', message, context),
   info: (message: string, context?: LogContext) => log('info', message, context),
   warn: (message: string, context?: LogContext) => log('warn', message, context),
-  error: (message: string, error?: Error, context?: LogContext) =>
-    log('error', message, context, error),
+  error: (message: string, errorOrContext?: Error | LogContext, context?: LogContext) => {
+    if (errorOrContext instanceof Error) {
+      log('error', message, context, errorOrContext)
+    } else {
+      log('error', message, errorOrContext)
+    }
+  },
 }
 
 /**
