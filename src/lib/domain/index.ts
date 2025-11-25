@@ -1,0 +1,61 @@
+// Booking domain
+export {
+  calculateTotalDuration,
+  calculateTotalPrice,
+  isWithinLeadTime,
+  isWithinHorizon,
+  canCancelAppointment,
+  doTimesOverlap,
+  hasSlotConflict,
+  validateBookingRules,
+  generateTimeSlots,
+  getMinutesUntilAppointment,
+  DEFAULT_BOOKING_RULES,
+  type BookingRules,
+  type TimeSlot,
+  type Service,
+  type Appointment,
+  type OpeningHours,
+  type StaffWorkingHours,
+} from './booking'
+
+// Voucher domain
+export {
+  validateVoucher,
+  hassufficientBalance,
+  calculateRedemptionAmount,
+  calculateNewBalance as calculateVoucherNewBalance,
+  validateRedemption,
+  formatVoucherCode,
+  normalizeVoucherCode,
+  isExpiringSoon,
+  getDaysUntilExpiry,
+  type Voucher,
+  type VoucherRedemption,
+  type VoucherValidationError,
+  type VoucherValidationResult,
+} from './voucher'
+
+// Loyalty domain
+export {
+  calculatePointsFromPurchase,
+  determineTier,
+  getPointsToNextTier,
+  calculateRedemptionValue,
+  calculatePointsRequired,
+  canRedeemPoints,
+  calculateNewBalance as calculateLoyaltyNewBalance,
+  validatePointsTransaction,
+  getTierProgress,
+  formatPoints,
+  estimatePointsFromCart,
+  willUpgradeTier,
+  createTransaction,
+  DEFAULT_TIERS,
+  DEFAULT_POINTS_PER_CHF,
+  DEFAULT_POINTS_PER_REDEMPTION,
+  type LoyaltyTier,
+  type LoyaltyAccount,
+  type LoyaltyTransaction,
+  type PointsCalculationResult,
+} from './loyalty'
