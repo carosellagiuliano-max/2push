@@ -38,7 +38,7 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   // Protected routes - redirect to login if not authenticated
-  const protectedPaths = ['/dashboard', '/admin', '/profile']
+  const protectedPaths = ['/dashboard', '/admin', '/profile', '/konto']
   const isProtectedPath = protectedPaths.some((path) =>
     request.nextUrl.pathname.startsWith(path)
   )
@@ -50,15 +50,15 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // Auth pages - redirect to dashboard if already authenticated
-  const authPaths = ['/login', '/register']
+  // Auth pages - redirect to customer portal if already authenticated
+  const authPaths = ['/login', '/registrieren']
   const isAuthPath = authPaths.some((path) =>
     request.nextUrl.pathname.startsWith(path)
   )
 
   if (isAuthPath && user) {
     const url = request.nextUrl.clone()
-    url.pathname = '/dashboard'
+    url.pathname = '/konto'
     return NextResponse.redirect(url)
   }
 

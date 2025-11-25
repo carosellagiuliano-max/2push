@@ -1,7 +1,10 @@
 'use server'
 
 import { z } from 'zod'
+import { format } from 'date-fns'
+import { de } from 'date-fns/locale'
 import { createClient } from '@/lib/supabase/server'
+import { sendBookingConfirmation } from '@/lib/notifications'
 import type { BookingRequest, BookingResponse } from '../types'
 
 const bookingSchema = z.object({
@@ -154,8 +157,46 @@ export async function createBooking(request: BookingRequest): Promise<BookingRes
       // Don't fail the booking, services can be fixed later
     }
 
-    // 5. Send confirmation email (TODO: implement email service)
-    // await sendBookingConfirmation(appointment.id)
+    // 5. Send confirmation email
+    try {
+      // Get salon info for email
+      const { data: salon } = await supabase
+        .from('salons')
+        .select('name, address, phone')
+        .eq('id', validated.salonId)
+        .single()
+
+      // Get staff info
+      const { data: staff } = await supabase
+        .from('staff')
+        .select('display_name')
+        .eq('id', validated.staffId)
+        .single()
+
+      // Get service names
+      const { data: serviceDetails } = await supabase
+        .from('services')
+        .select('name')
+        .in('id', validated.serviceIds)
+
+      const totalPrice = appointmentServices.reduce((sum, s) => sum + (s.snapshot_price || 0), 0)
+
+      await sendBookingConfirmation({
+        customerName: `${validated.customerInfo.firstName} ${validated.customerInfo.lastName}`,
+        customerEmail: validated.customerInfo.email,
+        appointmentDate: format(startsAt, 'EEEE, d. MMMM yyyy', { locale: de }),
+        appointmentTime: format(startsAt, 'HH:mm'),
+        services: (serviceDetails || []).map((s) => s.name),
+        staffName: staff?.display_name || 'Unser Team',
+        totalPrice,
+        salonName: salon?.name || 'SCHNITTWERK',
+        salonAddress: salon?.address || 'Rorschacherstrasse 152, 9000 St. Gallen',
+        salonPhone: salon?.phone || '+41 71 123 45 67',
+      })
+    } catch (emailError) {
+      // Don't fail the booking if email fails
+      console.error('Failed to send confirmation email:', emailError)
+    }
 
     return {
       success: true,

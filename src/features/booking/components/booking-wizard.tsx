@@ -13,6 +13,8 @@ import { StaffSelection } from './staff-selection'
 import { TimeSlotPicker } from './time-slot-picker'
 import { CustomerForm } from './customer-form'
 import { BookingSuccess } from './booking-success'
+import { getAvailableSlots } from '../actions/get-available-slots'
+import { createBooking } from '../actions/create-booking'
 import type { ServiceWithPrice, ServiceCategory, StaffWithSchedule, TimeSlot } from '../types'
 
 interface BookingWizardProps {
@@ -50,37 +52,26 @@ function BookingWizardContent({
 
   // Fetch available slots when date or staff changes
   const fetchSlots = React.useCallback(async (date: Date) => {
-    if (!salonId || selectedServices.length === 0) return
+    if (!salonId || selectedServices.length === 0 || !selectedStaff) return
 
     setIsSlotsLoading(true)
     try {
-      // TODO: Replace with actual API call
-      // For now, generate mock slots
-      const mockSlots: TimeSlot[] = []
-      const startHour = 9
-      const endHour = 18
+      const result = await getAvailableSlots({
+        salonId,
+        staffId: selectedStaff.id,
+        serviceIds: selectedServices.map((s) => s.id),
+        date,
+      })
 
-      for (let hour = startHour; hour < endHour; hour++) {
-        for (let minute = 0; minute < 60; minute += 30) {
-          const startsAt = new Date(date)
-          startsAt.setHours(hour, minute, 0, 0)
+      // Convert ISO strings back to Date objects
+      const slots: TimeSlot[] = result.slots.map((slot) => ({
+        startsAt: new Date(slot.startsAt),
+        endsAt: new Date(slot.endsAt),
+        staffId: slot.staffId,
+        isAvailable: slot.isAvailable,
+      }))
 
-          const endsAt = new Date(startsAt)
-          endsAt.setMinutes(endsAt.getMinutes() + 30)
-
-          // Randomly make some slots unavailable for demo
-          const isAvailable = Math.random() > 0.3
-
-          mockSlots.push({
-            startsAt,
-            endsAt,
-            staffId: selectedStaff?.id || 'any',
-            isAvailable,
-          })
-        }
-      }
-
-      setAvailableSlots(mockSlots)
+      setAvailableSlots(slots)
     } catch (error) {
       console.error('Failed to fetch slots:', error)
       toast({
@@ -105,27 +96,45 @@ function BookingWizardContent({
   }
 
   const handleSubmit = async () => {
-    if (!salonId || !selectedSlot || !customerInfo) return
+    if (!salonId || !selectedSlot || !customerInfo || !selectedStaff) return
 
     setIsSubmitting(true)
     try {
-      // TODO: Replace with actual server action
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-
-      // Mock success
-      setAppointmentId('mock-appointment-id')
-      nextStep()
-
-      toast({
-        title: 'Buchung erfolgreich',
-        description: 'Ihr Termin wurde bestätigt.',
-        variant: 'success',
+      const result = await createBooking({
+        salonId,
+        staffId: selectedStaff.id,
+        serviceIds: selectedServices.map((s) => s.id),
+        startsAt: selectedSlot.startsAt.toISOString(),
+        customerInfo: {
+          firstName: customerInfo.firstName,
+          lastName: customerInfo.lastName,
+          email: customerInfo.email,
+          phone: customerInfo.phone,
+        },
+        notes: notes || undefined,
       })
+
+      if (result.success && result.appointmentId) {
+        setAppointmentId(result.appointmentId)
+        nextStep()
+
+        toast({
+          title: 'Buchung erfolgreich',
+          description: 'Ihr Termin wurde bestätigt. Sie erhalten eine Bestätigungs-E-Mail.',
+          variant: 'success',
+        })
+      } else {
+        toast({
+          title: 'Buchung fehlgeschlagen',
+          description: result.error || 'Bitte versuchen Sie es erneut.',
+          variant: 'destructive',
+        })
+      }
     } catch (error) {
       console.error('Booking failed:', error)
       toast({
         title: 'Buchung fehlgeschlagen',
-        description: 'Bitte versuchen Sie es erneut.',
+        description: 'Ein unerwarteter Fehler ist aufgetreten.',
         variant: 'destructive',
       })
     } finally {
