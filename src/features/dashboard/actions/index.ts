@@ -50,3 +50,8 @@ export {
   type AnalyticsData,
   type AnalyticsInsight,
 } from './analytics'
+
+export {
+  getDashboardData,
+  type DashboardData,
+} from './dashboard'
