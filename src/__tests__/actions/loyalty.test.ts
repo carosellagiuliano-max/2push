@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { factories, resetMocks } from '../setup'
+import { resetMocks } from '../setup'
 
 // Mock loyalty actions
 const mockGetMyLoyaltyAccount = vi.fn()

@@ -5,6 +5,8 @@
  * In production, this should be replaced with a real email provider like Resend.
  */
 
+import { logger } from '@/lib/logging'
+
 export type EmailOptions = {
   to: string
   subject: string
@@ -37,7 +39,7 @@ export async function sendEmail(options: EmailOptions): Promise<{ success: boole
   //   ...options
   // })
 
-  console.log('[Email] Would send email:', {
+  logger.info('Would send email (placeholder)', {
     to: options.to,
     subject: options.subject,
   })
