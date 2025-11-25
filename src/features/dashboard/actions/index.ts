@@ -15,3 +15,25 @@ export {
   type UpdateAppointmentInput,
   type AppointmentActionResult,
 } from './calendar'
+
+export {
+  getStaffMembers,
+  getStaffMember,
+  createStaffMember,
+  updateStaffMember,
+  updateStaffWorkingHours,
+  updateStaffSkills,
+  deactivateStaffMember,
+  reactivateStaffMember,
+  assignRole,
+  removeRole,
+  exportCustomerData,
+  deleteCustomerData,
+  recordConsent,
+  getCustomerConsents,
+  type StaffMember,
+  type WorkingHoursEntry,
+  type CreateStaffInput,
+  type UpdateStaffInput,
+  type StaffResult,
+} from './staff'
