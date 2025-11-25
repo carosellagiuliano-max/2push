@@ -20,6 +20,7 @@ import {
   ShoppingBag,
   Wallet,
   Bell,
+  Building2,
 } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
@@ -50,6 +51,11 @@ const navigation = [
   { name: 'Einstellungen', href: '/dashboard/settings', icon: Settings },
 ]
 
+// HQ-only navigation items
+const hqNavigation = [
+  { name: 'Salons', href: '/dashboard/salons', icon: Building2 },
+]
+
 interface DashboardSidebarProps {
   user?: {
     name: string
@@ -57,9 +63,11 @@ interface DashboardSidebarProps {
     avatar?: string
     role: string
   }
+  /** Whether user has HQ role for cross-salon access */
+  isHqUser?: boolean
 }
 
-function SidebarContent({ user }: DashboardSidebarProps) {
+function SidebarContent({ user, isHqUser = false }: DashboardSidebarProps) {
   const pathname = usePathname()
 
   const handleLogout = async () => {
@@ -98,6 +106,36 @@ function SidebarContent({ user }: DashboardSidebarProps) {
             </Link>
           )
         })}
+
+        {/* HQ Navigation */}
+        {isHqUser && (
+          <>
+            <Separator className="my-2" />
+            <div className="px-3 py-1">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                HQ
+              </span>
+            </div>
+            {hqNavigation.map((item) => {
+              const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={cn(
+                    'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                    isActive
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                  )}
+                >
+                  <item.icon className="h-5 w-5" />
+                  {item.name}
+                </Link>
+              )
+            })}
+          </>
+        )}
       </nav>
 
       <Separator />
@@ -148,7 +186,7 @@ function SidebarContent({ user }: DashboardSidebarProps) {
   )
 }
 
-export function DashboardSidebar({ user }: DashboardSidebarProps) {
+export function DashboardSidebar({ user, isHqUser = false }: DashboardSidebarProps) {
   const [isOpen, setIsOpen] = React.useState(false)
 
   return (
@@ -166,13 +204,13 @@ export function DashboardSidebar({ user }: DashboardSidebarProps) {
           </Button>
         </SheetTrigger>
         <SheetContent side="left" className="w-72 p-0">
-          <SidebarContent user={user} />
+          <SidebarContent user={user} isHqUser={isHqUser} />
         </SheetContent>
       </Sheet>
 
       {/* Desktop sidebar */}
       <aside className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-72 lg:flex-col border-r bg-card">
-        <SidebarContent user={user} />
+        <SidebarContent user={user} isHqUser={isHqUser} />
       </aside>
     </>
   )
