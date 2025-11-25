@@ -35,6 +35,7 @@ import {
   updateStaffSkills,
   deactivateStaffMember,
   reactivateStaffMember,
+  assignRole,
   type StaffMember,
   type CreateStaffInput,
 } from '@/features/dashboard/actions'
@@ -118,6 +119,12 @@ export default function TeamPage() {
     // Update skills
     if (data.serviceIds) {
       await updateStaffSkills(editingStaff.id, data.serviceIds)
+    }
+
+    // Update role if staff has a linked profile and role changed
+    if (editingStaff.profileId && data.role && data.role !== editingStaff.role) {
+      // TODO: Get actual user ID from auth context for assignedBy
+      await assignRole(editingStaff.profileId, SALON_ID, data.role, 'system')
     }
 
     await fetchData()

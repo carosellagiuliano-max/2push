@@ -375,6 +375,11 @@ export function StaffFormModal({
                     ))}
                   </SelectContent>
                 </Select>
+                {isEditing && !staff?.profileId && (
+                  <p className="text-xs text-muted-foreground">
+                    Rollen können nur für Mitarbeiter mit verknüpftem Benutzerkonto gespeichert werden.
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">

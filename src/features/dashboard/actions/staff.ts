@@ -11,6 +11,7 @@ import type { Staff, UserRole, RoleName, DayOfWeek } from '@/lib/database.types'
 
 export interface StaffMember {
   id: string
+  profileId: string | null
   displayName: string
   email: string | null
   phone: string | null
@@ -136,6 +137,7 @@ export async function getStaffMembers(salonId: string): Promise<StaffMember[]> {
 
     return {
       id: staff.id,
+      profileId: staff.profile_id,
       displayName: staff.display_name,
       email: staff.email,
       phone: staff.phone,
@@ -209,6 +211,7 @@ export async function getStaffMember(staffId: string): Promise<StaffMember | nul
 
   return {
     id: staff.id,
+    profileId: staff.profile_id,
     displayName: staff.display_name,
     email: staff.email,
     phone: staff.phone,
